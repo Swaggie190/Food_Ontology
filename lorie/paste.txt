@@ -1,0 +1,281 @@
+@prefix : <http://example.org/food-ontology#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Déclaration de l'ontologie
+: a owl:Ontology ;
+    rdfs:label "Food Knowledge Graph Ontology" ;
+    rdfs:comment "Ontologie pour le graphe de connaissances alimentaire multi-modal" .
+
+# ===============================
+# CLASSES PRINCIPALES
+# ===============================
+
+# Classe racine Food
+:Food a owl:Class ;
+    rdfs:label "Food" ;
+    rdfs:comment "Classe générale pour tous les aliments" .
+
+# Sous-classes de Food
+:Beverage a owl:Class ;
+    rdfs:subClassOf :Food ;
+    rdfs:label "Beverage" .
+
+:CookedFood a owl:Class ;
+    rdfs:subClassOf :Food ;
+    rdfs:label "Cooked Food" .
+
+:ManufacturedFood a owl:Class ;
+    rdfs:subClassOf :Food ;
+    rdfs:label "Manufactured Food" .
+
+:FoodWithComplement a owl:Class ;
+    rdfs:subClassOf :Food ;
+    rdfs:label "Food With Complement" .
+
+:Ingredient a owl:Class ;
+    rdfs:subClassOf :Food ;
+    rdfs:label "Ingredient" .
+
+:RawFood a owl:Class ;
+    rdfs:subClassOf :Food ;
+    rdfs:label "Raw Food" .
+
+:Complement a owl:Class ;
+    rdfs:subClassOf :Food ;
+    rdfs:label "Complement" .
+
+:MainFood a owl:Class ;
+    rdfs:subClassOf :Food ;
+    rdfs:label "Main Food" .
+
+:Dish a owl:Class ;
+    rdfs:subClassOf :Food ;
+    rdfs:label "Dish" .
+
+# Sous-classes de Beverage
+:NaturalBeverage a owl:Class ;
+    rdfs:subClassOf :Beverage ;
+    rdfs:label "Natural Beverage" .
+
+:Tisane a owl:Class ;
+    rdfs:subClassOf :Beverage ;
+    rdfs:label "Tisane" .
+
+:Tea a owl:Class ;
+    rdfs:subClassOf :Beverage ;
+    rdfs:label "Tea" .
+
+:Coffee a owl:Class ;
+    rdfs:subClassOf :Beverage ;
+    rdfs:label "Coffee" .
+
+:ManufactureBeverage a owl:Class ;
+    rdfs:subClassOf :Beverage ;
+    rdfs:label "Manufactured Beverage" .
+
+:AlcoholicBeverage a owl:Class ;
+    rdfs:subClassOf :Beverage ;
+    rdfs:label "Alcoholic Beverage" .
+
+# Sous-classes de RawFood
+:Fruit a owl:Class ;
+    rdfs:subClassOf :RawFood ;
+    rdfs:label "Fruit" .
+
+:Vegetables a owl:Class ;
+    rdfs:subClassOf :RawFood ;
+    rdfs:label "Vegetables" .
+
+:Buffet a owl:Class ;
+    rdfs:subClassOf :Dish ;
+    rdfs:label "Buffet" .
+
+# ===============================
+# CLASSES ADDITIONNELLES
+# ===============================
+
+:FoodGroup a owl:Class ;
+    rdfs:label "Food Group" ;
+    rdfs:comment "Groupe alimentaire nutritionnel" .
+
+:DelocalizedArea a owl:Class ;
+    rdfs:label "Delocalized Area" ;
+    rdfs:comment "Zone géographique d'origine" .
+
+:Recipe a owl:Class ;
+    rdfs:label "Recipe" ;
+    rdfs:comment "Recette de cuisine" .
+
+:FoodComponent a owl:Class ;
+    rdfs:label "Food Component" ;
+    rdfs:comment "Composant nutritionnel des aliments" .
+
+:FoodImage a owl:Class ;
+    rdfs:label "Food Image" ;
+    rdfs:comment "Image d'un aliment" .
+
+# Sous-classes de FoodComponent
+:Fiber a owl:Class ;
+    rdfs:subClassOf :FoodComponent ;
+    rdfs:label "Fiber" .
+
+:Nutrient a owl:Class ;
+    rdfs:subClassOf :FoodComponent ;
+    rdfs:label "Nutrient" .
+
+:Water a owl:Class ;
+    rdfs:subClassOf :FoodComponent ;
+    rdfs:label "Water" .
+
+:FoodAdditive a owl:Class ;
+    rdfs:subClassOf :FoodComponent ;
+    rdfs:label "Food Additive" .
+
+# Sous-classes de Nutrient
+:MicroNutrient a owl:Class ;
+    rdfs:subClassOf :Nutrient ;
+    rdfs:label "Micro Nutrient" .
+
+:Macronutrient a owl:Class ;
+    rdfs:subClassOf :Nutrient ;
+    rdfs:label "Macronutrient" .
+
+# Sous-classes de FoodAdditive
+:SecondaryMetabolite a owl:Class ;
+    rdfs:subClassOf :FoodAdditive ;
+    rdfs:label "Secondary Metabolite" .
+
+# ===============================
+# PROPRIÉTÉS D'OBJET
+# ===============================
+
+:composedOf a owl:ObjectProperty ;
+    rdfs:label "composed of" ;
+    rdfs:domain :Food ;
+    rdfs:range :FoodComponent ;
+    rdfs:comment "Indique qu'un aliment est composé d'un composant" .
+
+:belongsTo a owl:ObjectProperty ;
+    rdfs:label "belongs to" ;
+    rdfs:domain :Food ;
+    rdfs:range :FoodGroup ;
+    rdfs:comment "Indique qu'un aliment appartient à un groupe alimentaire" .
+
+:hasRecipe a owl:ObjectProperty ;
+    rdfs:label "has recipe" ;
+    rdfs:domain :Food ;
+    rdfs:range :Recipe ;
+    rdfs:comment "Associe un aliment à sa recette" .
+
+:originatesFrom a owl:ObjectProperty ;
+    rdfs:label "originates from" ;
+    rdfs:domain :Food ;
+    rdfs:range :DelocalizedArea ;
+    rdfs:comment "Indique l'origine géographique d'un aliment" .
+
+:contains a owl:ObjectProperty ;
+    rdfs:label "contains" ;
+    rdfs:domain :Food ;
+    rdfs:range :Ingredient ;
+    rdfs:comment "Indique qu'un aliment contient un ingrédient" .
+
+:hasImage a owl:ObjectProperty ;
+    rdfs:label "has image" ;
+    rdfs:domain :Food ;
+    rdfs:range :FoodImage ;
+    rdfs:comment "Associe un aliment à une image" .
+
+# ===============================
+# PROPRIÉTÉS DE DONNÉES
+# ===============================
+
+:calories a owl:DatatypeProperty ;
+    rdfs:label "calories" ;
+    rdfs:domain :Food ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Nombre de calories pour 100g" .
+
+:protein a owl:DatatypeProperty ;
+    rdfs:label "protein" ;
+    rdfs:domain :Food ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Quantité de protéines en grammes pour 100g" .
+
+:carbohydrates a owl:DatatypeProperty ;
+    rdfs:label "carbohydrates" ;
+    rdfs:domain :Food ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Quantité de glucides en grammes pour 100g" .
+
+:fat a owl:DatatypeProperty ;
+    rdfs:label "fat" ;
+    rdfs:domain :Food ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Quantité de lipides en grammes pour 100g" .
+
+:fiber a owl:DatatypeProperty ;
+    rdfs:label "fiber" ;
+    rdfs:domain :Food ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Quantité de fibres en grammes pour 100g" .
+
+:sodium a owl:DatatypeProperty ;
+    rdfs:label "sodium" ;
+    rdfs:domain :Food ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Quantité de sodium en milligrammes pour 100g" .
+
+:sugar a owl:DatatypeProperty ;
+    rdfs:label "sugar" ;
+    rdfs:domain :Food ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Quantité de sucres en grammes pour 100g" .
+
+:imagePath a owl:DatatypeProperty ;
+    rdfs:label "image path" ;
+    rdfs:domain :FoodImage ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Chemin vers l'image de l'aliment" .
+
+:description a owl:DatatypeProperty ;
+    rdfs:label "description" ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Description textuelle" .
+
+:name a owl:DatatypeProperty ;
+    rdfs:label "name" ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Nom de l'entité" .
+
+:preparationTime a owl:DatatypeProperty ;
+    rdfs:label "preparation time" ;
+    rdfs:domain :Recipe ;
+    rdfs:range xsd:duration ;
+    rdfs:comment "Temps de préparation de la recette" .
+
+:servings a owl:DatatypeProperty ;
+    rdfs:label "servings" ;
+    rdfs:domain :Recipe ;
+    rdfs:range xsd:integer ;
+    rdfs:comment "Nombre de portions" .
+
+:filename a owl:DatatypeProperty ;
+    rdfs:label "filename" ;
+    rdfs:domain :FoodImage ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Nom du fichier image" .
+
+:width a owl:DatatypeProperty ;
+    rdfs:label "width" ;
+    rdfs:domain :FoodImage ;
+    rdfs:range xsd:integer ;
+    rdfs:comment "Largeur de l'image en pixels" .
+
+:height a owl:DatatypeProperty ;
+    rdfs:label "height" ;
+    rdfs:domain :FoodImage ;
+    rdfs:range xsd:integer ;
+    rdfs:comment "Hauteur de l'image en pixels" .
