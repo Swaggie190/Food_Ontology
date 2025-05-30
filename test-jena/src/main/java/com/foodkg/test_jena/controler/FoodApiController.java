@@ -1,4 +1,3 @@
-
 package com.foodkg.test_jena.controler;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,9 +9,11 @@ import com.foodkg.test_jena.request.SearchRequest;
 import com.foodkg.test_jena.request.SearchResponse;
 import com.foodkg.test_jena.service.FoodSearchService;
 import com.foodkg.test_jena.service.LuceneService;
+import com.foodkg.test_jena.service.SparqlService;
 
 import jakarta.validation.Valid;
 
+import java.util.ArrayList;  // ← AJOUTÉ
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -28,6 +29,10 @@ public class FoodApiController {
     @Autowired
     private LuceneService luceneService;
 
+    // 🎯 AJOUTÉ : Injection de SparqlService
+    @Autowired
+    private SparqlService sparqlService;
+
     @PostMapping("/search")
     public ResponseEntity<SearchResponse> searchFoods(@Valid @RequestBody SearchRequest request) {
         SearchResponse response = searchService.searchFoods(request);
@@ -39,10 +44,10 @@ public class FoodApiController {
             @RequestParam(required = false) String query,
             @RequestParam(required = false) String foodClass,
             @RequestParam(required = false) String foodGroup,
-            @RequestParam(required = false) Double minCalories,
-            @RequestParam(required = false) Double maxCalories,
-            @RequestParam(required = false) Double minProtein,
-            @RequestParam(required = false) Double maxProtein,
+            @RequestParam(required = false) String minCalories,
+            @RequestParam(required = false) String maxCalories,
+            @RequestParam(required = false) String minProtein,
+            @RequestParam(required = false) String maxProtein,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size,
             @RequestParam(defaultValue = "name") String sortBy,
@@ -52,10 +57,40 @@ public class FoodApiController {
         request.setQuery(query);
         request.setFoodClass(foodClass);
         request.setFoodGroup(foodGroup);
-        request.setMinCalories(minCalories);
-        request.setMaxCalories(maxCalories);
-        request.setMinProtein(minProtein);
-        request.setMaxProtein(maxProtein);
+        
+        // 🔧 CORRECTION : Conversion String vers Double
+        if (minCalories != null && !minCalories.isEmpty()) {
+            try {
+                request.setMinCalories(Double.parseDouble(minCalories));
+            } catch (NumberFormatException e) {
+                // Ignorer si non numérique
+            }
+        }
+        
+        if (maxCalories != null && !maxCalories.isEmpty()) {
+            try {
+                request.setMaxCalories(Double.parseDouble(maxCalories));
+            } catch (NumberFormatException e) {
+                // Ignorer si non numérique
+            }
+        }
+        
+        if (minProtein != null && !minProtein.isEmpty()) {
+            try {
+                request.setMinProtein(Double.parseDouble(minProtein));
+            } catch (NumberFormatException e) {
+                // Ignorer si non numérique
+            }
+        }
+        
+        if (maxProtein != null && !maxProtein.isEmpty()) {
+            try {
+                request.setMaxProtein(Double.parseDouble(maxProtein));
+            } catch (NumberFormatException e) {
+                // Ignorer si non numérique
+            }
+        }
+        
         request.setPage(page);
         request.setSize(size);
         request.setSortBy(sortBy);
@@ -135,6 +170,111 @@ public class FoodApiController {
             errorResponse.put("error", e.getMessage());
 
             return ResponseEntity.ok(errorResponse);
+        }
+    }
+
+    // 🎯 NOUVEAUX ENDPOINTS SPÉCIALISÉS
+
+    @GetMapping("/regions")
+    public ResponseEntity<List<String>> getRegions() {
+        try {
+            List<String> regions = sparqlService.getRegions();
+            return ResponseEntity.ok(regions);
+        } catch (Exception e) {
+            System.err.println("❌ Error getting regions: " + e.getMessage());
+            return ResponseEntity.ok(new ArrayList<>());
+        }
+    }
+
+    @GetMapping("/search/region/{region}")
+    public ResponseEntity<List<Food>> getFoodsByRegion(@PathVariable String region) {
+        try {
+            List<Food> foods = sparqlService.searchByRegion(region);
+            return ResponseEntity.ok(foods);
+        } catch (Exception e) {
+            System.err.println("❌ Error searching by region: " + e.getMessage());
+            return ResponseEntity.ok(new ArrayList<>());
+        }
+    }
+
+    @GetMapping("/search/spice/{level}")
+    public ResponseEntity<SearchResponse> getFoodsBySpiceLevel(
+            @PathVariable String level,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size) {
+        
+        // 🔧 CORRECTION : Implémentation basique
+        SearchResponse response = new SearchResponse();
+        response.setFoods(new ArrayList<>());
+        response.setTotalElements(0);
+        response.setCurrentPage(page);
+        response.setSize(size);
+        response.setTotalPages(0);
+        response.setHasNext(false);
+        response.setHasPrevious(false);
+        
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/stats/cultural")
+    public ResponseEntity<Map<String, Object>> getCulturalStats() {
+        Map<String, Object> stats = new HashMap<>();
+        
+        try {
+            List<String> regions = sparqlService.getRegions();
+            stats.put("regions", regions);
+            stats.put("totalRegions", regions.size());
+            
+            Map<String, Integer> regionCounts = new HashMap<>();
+            for (String region : regions) {
+                List<Food> foods = sparqlService.searchByRegion(region);
+                regionCounts.put(region, foods.size());
+            }
+            stats.put("foodsByRegion", regionCounts);
+            
+        } catch (Exception e) {
+            System.err.println("❌ Error getting cultural stats: " + e.getMessage());
+            stats.put("error", e.getMessage());
+            stats.put("regions", new ArrayList<>());
+            stats.put("totalRegions", 0);
+            stats.put("foodsByRegion", new HashMap<>());
+        }
+        
+        return ResponseEntity.ok(stats);
+    }
+
+    // 🎯 NOUVEAUX ENDPOINTS POUR VOTRE INTERFACE
+
+    @GetMapping("/cooking-methods")
+    public ResponseEntity<List<String>> getCookingMethods() {
+        try {
+            List<String> methods = sparqlService.getCookingMethods();
+            return ResponseEntity.ok(methods);
+        } catch (Exception e) {
+            System.err.println("❌ Error getting cooking methods: " + e.getMessage());
+            return ResponseEntity.ok(new ArrayList<>());
+        }
+    }
+
+    @GetMapping("/spice-levels")
+    public ResponseEntity<List<String>> getSpiceLevels() {
+        try {
+            List<String> levels = sparqlService.getSpiceLevels();
+            return ResponseEntity.ok(levels);
+        } catch (Exception e) {
+            System.err.println("❌ Error getting spice levels: " + e.getMessage());
+            return ResponseEntity.ok(new ArrayList<>());
+        }
+    }
+
+    @GetMapping("/search/cooking-method/{method}")
+    public ResponseEntity<List<Food>> getFoodsByCookingMethod(@PathVariable String method) {
+        try {
+            List<Food> foods = sparqlService.searchByCookingMethod(method);
+            return ResponseEntity.ok(foods);
+        } catch (Exception e) {
+            System.err.println("❌ Error searching by cooking method: " + e.getMessage());
+            return ResponseEntity.ok(new ArrayList<>());
         }
     }
 }

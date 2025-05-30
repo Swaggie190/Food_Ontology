@@ -12,6 +12,8 @@ import com.foodkg.test_jena.FoodKGConfig;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.attribute.PosixFilePermission;
+import java.util.Set;
 
 @RestController
 @RequestMapping("/api/images")
@@ -48,9 +50,22 @@ public class ImageController {
                 String contentType = getContentType(filename);
                 System.out.println("Content type: " + contentType);
 
-                // NOUVEAUX LOGS
+                // NOUVEAUX LOGS - Fixed for cross-platform compatibility
                 System.out.println("File size: " + Files.size(imagePath) + " bytes");
-                System.out.println("File permissions: " + Files.getPosixFilePermissions(imagePath));
+                
+                // Cross-platform file permissions check
+                if (!System.getProperty("os.name").toLowerCase().contains("windows")) {
+                    try {
+                        Set<PosixFilePermission> permissions = Files.getPosixFilePermissions(imagePath);
+                        System.out.println("File permissions: " + permissions);
+                    } catch (UnsupportedOperationException e) {
+                        System.out.println("File permissions: POSIX permissions not supported on this system");
+                    }
+                } else {
+                    // For Windows, just show basic file attributes
+                    System.out.println("File permissions: Windows system - readable: " + 
+                                     Files.isReadable(imagePath) + ", writable: " + Files.isWritable(imagePath));
+                }
 
                 ResponseEntity<Resource> response = ResponseEntity.ok()
                         .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + filename + "\"")

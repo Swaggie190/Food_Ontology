@@ -12,6 +12,13 @@ public class Food {
     private String classLabel;
     private String foodGroup;
     
+    // 🎯 NOUVELLES PROPRIÉTÉS SPÉCIALISÉES
+    private String region;
+    private String cookingMethod;
+    private String spiceLevel;
+    private String culturalSignificance;
+    private String foodType;
+    
     // Données nutritionnelles
     private Double calories;
     private Double protein;
@@ -36,7 +43,7 @@ public class Food {
         this.name = name;
     }
     
-    // Getters et setters
+    // 🎯 GETTERS ET SETTERS EXISTANTS
     public String getUri() { return uri; }
     public void setUri(String uri) { this.uri = uri; }
     
@@ -55,6 +62,23 @@ public class Food {
     public String getFoodGroup() { return foodGroup; }
     public void setFoodGroup(String foodGroup) { this.foodGroup = foodGroup; }
     
+    // 🎯 NOUVEAUX GETTERS ET SETTERS SPÉCIALISÉS
+    public String getRegion() { return region; }
+    public void setRegion(String region) { this.region = region; }
+    
+    public String getCookingMethod() { return cookingMethod; }
+    public void setCookingMethod(String cookingMethod) { this.cookingMethod = cookingMethod; }
+    
+    public String getSpiceLevel() { return spiceLevel; }
+    public void setSpiceLevel(String spiceLevel) { this.spiceLevel = spiceLevel; }
+    
+    public String getCulturalSignificance() { return culturalSignificance; }
+    public void setCulturalSignificance(String culturalSignificance) { this.culturalSignificance = culturalSignificance; }
+    
+    public String getFoodType() { return foodType; }
+    public void setFoodType(String foodType) { this.foodType = foodType; }
+    
+    // Getters/setters nutritionnels (inchangés)
     public Double getCalories() { return calories; }
     public void setCalories(Double calories) { this.calories = calories; }
     
@@ -84,6 +108,4 @@ public class Food {
     
     public Float getSearchScore() { return searchScore; }
     public void setSearchScore(Float searchScore) { this.searchScore = searchScore; }
-
-    
 }

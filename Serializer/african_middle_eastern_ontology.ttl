@@ -1,0 +1,439 @@
+@prefix : <http://example.org/food-ontology#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Déclaration de l'ontologie étendue
+: a owl:Ontology ;
+    rdfs:label "Extended Food Knowledge Graph Ontology for African and Middle Eastern Cuisine" ;
+    rdfs:comment "Ontologie étendue pour le graphe de connaissances alimentaire spécialisé" ;
+    owl:versionInfo "2.0" .
+
+# ===============================
+# CLASSES PRINCIPALES (héritées)
+# ===============================
+
+# Classe racine Food
+:Food a owl:Class ;
+    rdfs:label "Food" ;
+    rdfs:comment "Classe générale pour tous les aliments" .
+
+# Sous-classes de Food existantes
+:Beverage a owl:Class ;
+    rdfs:subClassOf :Food ;
+    rdfs:label "Beverage" .
+
+:CookedFood a owl:Class ;
+    rdfs:subClassOf :Food ;
+    rdfs:label "Cooked Food" .
+
+:ManufacturedFood a owl:Class ;
+    rdfs:subClassOf :Food ;
+    rdfs:label "Manufactured Food" .
+
+:RawFood a owl:Class ;
+    rdfs:subClassOf :Food ;
+    rdfs:label "Raw Food" .
+
+:Ingredient a owl:Class ;
+    rdfs:subClassOf :Food ;
+    rdfs:label "Ingredient" .
+
+# ===============================
+# NOUVELLES CLASSES SPÉCIALISÉES
+# ===============================
+
+# Classes régionales
+:AfricanFood a owl:Class ;
+    rdfs:subClassOf :Food ;
+    rdfs:label "African Food" ;
+    rdfs:comment "Aliments originaires d'Afrique" .
+
+:EastAfricanFood a owl:Class ;
+    rdfs:subClassOf :AfricanFood ;
+    rdfs:label "East African Food" ;
+    rdfs:comment "Cuisine d'Afrique de l'Est" .
+
+:MiddleEasternFood a owl:Class ;
+    rdfs:subClassOf :Food ;
+    rdfs:label "Middle Eastern Food" ;
+    rdfs:comment "Cuisine du Moyen-Orient" .
+
+# Classes par type de plat
+:FlatBread a owl:Class ;
+    rdfs:subClassOf :CookedFood ;
+    rdfs:label "Flat Bread" ;
+    rdfs:comment "Pains plats traditionnels" .
+
+:Samosa a owl:Class ;
+    rdfs:subClassOf :CookedFood ;
+    rdfs:label "Samosa" ;
+    rdfs:comment "Beignets farcis triangulaires" .
+
+:StirFriedVegetables a owl:Class ;
+    rdfs:subClassOf :CookedFood ;
+    rdfs:label "Stir Fried Vegetables" ;
+    rdfs:comment "Légumes sautés à l'africaine" .
+
+:Porridge a owl:Class ;
+    rdfs:subClassOf :CookedFood ;
+    rdfs:label "Porridge" ;
+    rdfs:comment "Bouillies de céréales" .
+
+:EggDish a owl:Class ;
+    rdfs:subClassOf :CookedFood ;
+    rdfs:label "Egg Dish" ;
+    rdfs:comment "Plats à base d'œufs" .
+
+:StuffedVegetables a owl:Class ;
+    rdfs:subClassOf :CookedFood ;
+    rdfs:label "Stuffed Vegetables" ;
+    rdfs:comment "Légumes farcis du Moyen-Orient" .
+
+:Stew a owl:Class ;
+    rdfs:subClassOf :CookedFood ;
+    rdfs:label "Stew" ;
+    rdfs:comment "Ragoûts et plats mijotés" .
+
+:GrilledMeat a owl:Class ;
+    rdfs:subClassOf :CookedFood ;
+    rdfs:label "Grilled Meat" ;
+    rdfs:comment "Viandes grillées" .
+
+:SeedPaste a owl:Class ;
+    rdfs:subClassOf :ManufacturedFood ;
+    rdfs:label "Seed Paste" ;
+    rdfs:comment "Pâtes de graines (tahini, etc.)" .
+
+# ===============================
+# NOUVELLES CLASSES SUPPORT
+# ===============================
+
+:CuisineRegion a owl:Class ;
+    rdfs:label "Cuisine Region" ;
+    rdfs:comment "Région culinaire géographique" .
+
+:CookingMethod a owl:Class ;
+    rdfs:label "Cooking Method" ;
+    rdfs:comment "Méthode de cuisson" .
+
+:SpiceLevel a owl:Class ;
+    rdfs:label "Spice Level" ;
+    rdfs:comment "Niveau d'épices" .
+
+:Allergen a owl:Class ;
+    rdfs:label "Allergen" ;
+    rdfs:comment "Allergène alimentaire" .
+
+:CulturalContext a owl:Class ;
+    rdfs:label "Cultural Context" ;
+    rdfs:comment "Contexte culturel du plat" .
+
+# Classes existantes étendues
+:FoodGroup a owl:Class ;
+    rdfs:label "Food Group" ;
+    rdfs:comment "Groupe alimentaire nutritionnel" .
+
+:Recipe a owl:Class ;
+    rdfs:label "Recipe" ;
+    rdfs:comment "Recette de cuisine" .
+
+:FoodImage a owl:Class ;
+    rdfs:label "Food Image" ;
+    rdfs:comment "Image d'un aliment" .
+
+# ===============================
+# NOUVELLES PROPRIÉTÉS D'OBJET
+# ===============================
+
+:originatesFrom a owl:ObjectProperty ;
+    rdfs:label "originates from" ;
+    rdfs:domain :Food ;
+    rdfs:range :CuisineRegion ;
+    rdfs:comment "Indique la région d'origine culinaire" .
+
+:usedInRegion a owl:ObjectProperty ;
+    rdfs:label "used in region" ;
+    rdfs:domain :Ingredient ;
+    rdfs:range :CuisineRegion ;
+    rdfs:comment "Indique qu'un ingrédient est utilisé dans une région" .
+
+:preparedBy a owl:ObjectProperty ;
+    rdfs:label "prepared by" ;
+    rdfs:domain :Food ;
+    rdfs:range :CookingMethod ;
+    rdfs:comment "Méthode de préparation du plat" .
+
+:hasSpiceLevel a owl:ObjectProperty ;
+    rdfs:label "has spice level" ;
+    rdfs:domain :Food ;
+    rdfs:range :SpiceLevel ;
+    rdfs:comment "Niveau d'épices du plat" .
+
+:containsAllergen a owl:ObjectProperty ;
+    rdfs:label "contains allergen" ;
+    rdfs:domain :Food ;
+    rdfs:range :Allergen ;
+    rdfs:comment "Contient un allergène" .
+
+:hasContext a owl:ObjectProperty ;
+    rdfs:label "has context" ;
+    rdfs:domain :Food ;
+    rdfs:range :CulturalContext ;
+    rdfs:comment "Contexte culturel du plat" .
+
+:showsFood a owl:ObjectProperty ;
+    rdfs:label "shows food" ;
+    rdfs:domain :FoodImage ;
+    rdfs:range :Food ;
+    rdfs:comment "Une image montre un aliment" .
+
+:representsCuisine a owl:ObjectProperty ;
+    rdfs:label "represents cuisine" ;
+    rdfs:domain :FoodImage ;
+    rdfs:range :CuisineRegion ;
+    rdfs:comment "Une image représente une cuisine" .
+
+# Propriétés existantes
+:contains a owl:ObjectProperty ;
+    rdfs:label "contains" ;
+    rdfs:domain :Food ;
+    rdfs:range :Ingredient ;
+    rdfs:comment "Contient un ingrédient" .
+
+:belongsTo a owl:ObjectProperty ;
+    rdfs:label "belongs to" ;
+    rdfs:domain :Food ;
+    rdfs:range :FoodGroup ;
+    rdfs:comment "Appartient à un groupe alimentaire" .
+
+:hasImage a owl:ObjectProperty ;
+    rdfs:label "has image" ;
+    rdfs:domain :Food ;
+    rdfs:range :FoodImage ;
+    rdfs:comment "Associe un aliment à une image" .
+
+:hasRecipe a owl:ObjectProperty ;
+    rdfs:label "has recipe" ;
+    rdfs:domain :Food ;
+    rdfs:range :Recipe ;
+    rdfs:comment "Associe un aliment à sa recette" .
+
+# ===============================
+# NOUVELLES PROPRIÉTÉS DE DONNÉES
+# ===============================
+
+# Propriétés régionales et culturelles
+:region a owl:DatatypeProperty ;
+    rdfs:label "region" ;
+    rdfs:domain :Food ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Région géographique d'origine" .
+
+:cookingMethod a owl:DatatypeProperty ;
+    rdfs:label "cooking method" ;
+    rdfs:domain :Food ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Méthode de cuisson utilisée" .
+
+:spiceLevel a owl:DatatypeProperty ;
+    rdfs:label "spice level" ;
+    rdfs:domain :Food ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Niveau d'épices (mild, medium, hot)" .
+
+:culturalSignificance a owl:DatatypeProperty ;
+    rdfs:label "cultural significance" ;
+    rdfs:domain :Food ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Signification culturelle du plat" .
+
+:foodType a owl:DatatypeProperty ;
+    rdfs:label "food type" ;
+    rdfs:domain :Food ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Type spécifique de l'aliment" .
+
+:geographicalOrigin a owl:DatatypeProperty ;
+    rdfs:label "geographical origin" ;
+    rdfs:domain :CuisineRegion ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Origine géographique de la région culinaire" .
+
+:usedIn a owl:DatatypeProperty ;
+    rdfs:label "used in" ;
+    rdfs:domain :Ingredient ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Région où l'ingrédient est utilisé" .
+
+# Propriétés d'images étendues
+:aspectRatio a owl:DatatypeProperty ;
+    rdfs:label "aspect ratio" ;
+    rdfs:domain :FoodImage ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Ratio largeur/hauteur de l'image" .
+
+:imageQuality a owl:DatatypeProperty ;
+    rdfs:label "image quality" ;
+    rdfs:domain :FoodImage ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Qualité de l'image (low, medium, high)" .
+
+# Propriétés nutritionnelles existantes
+:calories a owl:DatatypeProperty ;
+    rdfs:label "calories" ;
+    rdfs:domain :Food ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Nombre de calories pour 100g" .
+
+:protein a owl:DatatypeProperty ;
+    rdfs:label "protein" ;
+    rdfs:domain :Food ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Quantité de protéines en grammes pour 100g" .
+
+:carbohydrates a owl:DatatypeProperty ;
+    rdfs:label "carbohydrates" ;
+    rdfs:domain :Food ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Quantité de glucides en grammes pour 100g" .
+
+:fat a owl:DatatypeProperty ;
+    rdfs:label "fat" ;
+    rdfs:domain :Food ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Quantité de lipides en grammes pour 100g" .
+
+:fiber a owl:DatatypeProperty ;
+    rdfs:label "fiber" ;
+    rdfs:domain :Food ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Quantité de fibres en grammes pour 100g" .
+
+:sodium a owl:DatatypeProperty ;
+    rdfs:label "sodium" ;
+    rdfs:domain :Food ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Quantité de sodium en milligrammes pour 100g" .
+
+:sugar a owl:DatatypeProperty ;
+    rdfs:label "sugar" ;
+    rdfs:domain :Food ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "Quantité de sucres en grammes pour 100g" .
+
+# Propriétés d'images existantes
+:imagePath a owl:DatatypeProperty ;
+    rdfs:label "image path" ;
+    rdfs:domain :FoodImage ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Chemin vers l'image de l'aliment" .
+
+:filename a owl:DatatypeProperty ;
+    rdfs:label "filename" ;
+    rdfs:domain :FoodImage ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Nom du fichier image" .
+
+:width a owl:DatatypeProperty ;
+    rdfs:label "width" ;
+    rdfs:domain :FoodImage ;
+    rdfs:range xsd:integer ;
+    rdfs:comment "Largeur de l'image en pixels" .
+
+:height a owl:DatatypeProperty ;
+    rdfs:label "height" ;
+    rdfs:domain :FoodImage ;
+    rdfs:range xsd:integer ;
+    rdfs:comment "Hauteur de l'image en pixels" .
+
+# Propriétés générales
+:name a owl:DatatypeProperty ;
+    rdfs:label "name" ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Nom de l'entité" .
+
+:description a owl:DatatypeProperty ;
+    rdfs:label "description" ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Description textuelle" .
+
+# ===============================
+# INSTANCES PRÉDÉFINIES
+# ===============================
+
+# Régions culinaires
+:EastAfricanCuisine a :CuisineRegion ;
+    :name "East African Cuisine" ;
+    :geographicalOrigin "East_Africa" ;
+    :description "Cuisine traditionnelle d'Afrique de l'Est" .
+
+:MiddleEasternCuisine a :CuisineRegion ;
+    :name "Middle Eastern Cuisine" ;
+    :geographicalOrigin "Middle_East" ;
+    :description "Cuisine traditionnelle du Moyen-Orient" .
+
+:InternationalCuisine a :CuisineRegion ;
+    :name "International Cuisine" ;
+    :geographicalOrigin "International" ;
+    :description "Cuisine internationale et fusion" .
+
+# Niveaux d'épices
+:MildSpice a :SpiceLevel ;
+    :name "Mild" ;
+    :description "Peu épicé, adapté aux palais sensibles" .
+
+:MediumSpice a :SpiceLevel ;
+    :name "Medium" ;
+    :description "Moyennement épicé" .
+
+:HotSpice a :SpiceLevel ;
+    :name "Hot" ;
+    :description "Très épicé, pour les amateurs de sensations fortes" .
+
+# Méthodes de cuisson courantes
+:FriedMethod a :CookingMethod ;
+    :name "Fried" ;
+    :description "Cuisson par friture dans l'huile" .
+
+:GrilledMethod a :CookingMethod ;
+    :name "Grilled" ;
+    :description "Cuisson sur le gril ou grille" .
+
+:BoiledMethod a :CookingMethod ;
+    :name "Boiled" ;
+    :description "Cuisson dans l'eau bouillante" .
+
+:StirFriedMethod a :CookingMethod ;
+    :name "Stir Fried" ;
+    :description "Cuisson rapide en remuant dans un wok ou poêle" .
+
+:SteamedMethod a :CookingMethod ;
+    :name "Steamed" ;
+    :description "Cuisson à la vapeur" .
+
+:StuffedMethod a :CookingMethod ;
+    :name "Stuffed" ;
+    :description "Cuisson après farcissage" .
+
+# Allergènes courants
+:WheatAllergen a :Allergen ;
+    :name "Wheat" ;
+    :description "Contient du blé et du gluten" .
+
+:EggAllergen a :Allergen ;
+    :name "Eggs" ;
+    :description "Contient des œufs" .
+
+:MilkAllergen a :Allergen ;
+    :name "Milk" ;
+    :description "Contient du lait et des produits laitiers" .
+
+:SesameAllergen a :Allergen ;
+    :name "Sesame" ;
+    :description "Contient des graines de sésame" .
+
+:NutsAllergen a :Allergen ;
+    :name "Nuts" ;
+    :description "Contient des fruits à coque" .

@@ -26,28 +26,33 @@ public class SparqlService {
 
     public List<Food> getAllFoods() {
         String queryString = """
-                PREFIX : <http://example.org/food-ontology#>
-                PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+            PREFIX : <http://example.org/food-ontology#>
+            PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 
-                SELECT ?food ?name ?class ?classLabel ?calories ?protein ?carbohydrates ?fat ?fiber ?sodium ?sugar ?description WHERE {
-                    ?food :name ?name ;
-                          a ?class .
-                    ?class rdfs:label ?classLabel .
+            SELECT ?food ?name ?class ?classLabel ?region ?cookingMethod ?spiceLevel ?culturalSignificance
+                ?calories ?protein ?carbohydrates ?fat ?fiber ?sodium ?sugar ?description WHERE {
+                ?food :name ?name ;
+                    a ?class .
+                ?class rdfs:label ?classLabel .
 
-                    OPTIONAL { ?food :calories ?calories }
-                    OPTIONAL { ?food :protein ?protein }
-                    OPTIONAL { ?food :carbohydrates ?carbohydrates }
-                    OPTIONAL { ?food :fat ?fat }
-                    OPTIONAL { ?food :fiber ?fiber }
-                    OPTIONAL { ?food :sodium ?sodium }
-                    OPTIONAL { ?food :sugar ?sugar }
-                    OPTIONAL { ?food :description ?description }
+                OPTIONAL { ?food :region ?region }
+                OPTIONAL { ?food :cookingMethod ?cookingMethod }
+                OPTIONAL { ?food :spiceLevel ?spiceLevel }
+                OPTIONAL { ?food :culturalSignificance ?culturalSignificance }
+                OPTIONAL { ?food :calories ?calories }
+                OPTIONAL { ?food :protein ?protein }
+                OPTIONAL { ?food :carbohydrates ?carbohydrates }
+                OPTIONAL { ?food :fat ?fat }
+                OPTIONAL { ?food :fiber ?fiber }
+                OPTIONAL { ?food :sodium ?sodium }
+                OPTIONAL { ?food :sugar ?sugar }
+                OPTIONAL { ?food :description ?description }
 
-                    FILTER(?class != <http://www.w3.org/2002/07/owl#NamedIndividual>)
-                    FILTER(STRSTARTS(STR(?class), "http://example.org/food-ontology#"))
-                }
-                ORDER BY ?name
-                """;
+                FILTER(?class != <http://www.w3.org/2002/07/owl#NamedIndividual>)
+                FILTER(STRSTARTS(STR(?class), "http://example.org/food-ontology#"))
+            }
+            ORDER BY ?name
+            """;
 
         return executeQuery(queryString);
     }
@@ -311,11 +316,24 @@ public class SparqlService {
                     food.setClassLabel(solution.getLiteral("classLabel").getString());
                 }
 
-                if (solution.contains("groupName")) {
-                    food.setFoodGroup(solution.getLiteral("groupName").getString());
+                // 🎯 NOUVELLES PROPRIÉTÉS SPÉCIALISÉES
+                if (solution.contains("region")) {
+                    food.setRegion(solution.getLiteral("region").getString());
+                }
+                
+                if (solution.contains("cookingMethod")) {
+                    food.setCookingMethod(solution.getLiteral("cookingMethod").getString());
+                }
+                
+                if (solution.contains("spiceLevel")) {
+                    food.setSpiceLevel(solution.getLiteral("spiceLevel").getString());
+                }
+                
+                if (solution.contains("culturalSignificance")) {
+                    food.setCulturalSignificance(solution.getLiteral("culturalSignificance").getString());
                 }
 
-                // Propriétés nutritionnelles
+                // Propriétés nutritionnelles (inchangées)
                 setNutritionalValue(solution, food, "calories", food::setCalories);
                 setNutritionalValue(solution, food, "protein", food::setProtein);
                 setNutritionalValue(solution, food, "carbohydrates", food::setCarbohydrates);
@@ -350,4 +368,116 @@ public class SparqlService {
             }
         }
     }
+
+    public List<Food> searchByRegion(String region) {
+        String queryString = String.format("""
+            PREFIX : <http://example.org/food-ontology#>
+            PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+            SELECT ?food ?name ?class ?classLabel ?region ?spiceLevel ?cookingMethod ?calories WHERE {
+                ?food :name ?name ;
+                    a ?class ;
+                    :region "%s" .
+                ?class rdfs:label ?classLabel .
+
+                OPTIONAL { ?food :spiceLevel ?spiceLevel }
+                OPTIONAL { ?food :cookingMethod ?cookingMethod }
+                OPTIONAL { ?food :calories ?calories }
+
+                FILTER(?class != <http://www.w3.org/2002/07/owl#NamedIndividual>)
+            }
+            ORDER BY ?name
+            """, region);
+
+        return executeQuery(queryString);
+    }
+
+    public List<String> getRegions() {
+        String queryString = """
+            PREFIX : <http://example.org/food-ontology#>
+            
+            SELECT DISTINCT ?region WHERE {
+                ?food :region ?region .
+            }
+            ORDER BY ?region
+            """;
+        
+        List<String> regions = new ArrayList<>();
+        try (QueryExecution qexec = QueryExecutionFactory.sparqlService(config.getSparqlEndpoint(), queryString)) {
+            ResultSet results = qexec.execSelect();
+            while (results.hasNext()) {
+                QuerySolution solution = results.nextSolution();
+                regions.add(solution.getLiteral("region").getString());
+            }
+        }
+        return regions;
+    }
+
+public List<String> getCookingMethods() {
+    String queryString = """
+        PREFIX : <http://example.org/food-ontology#>
+        
+        SELECT DISTINCT ?method WHERE {
+            ?food :cookingMethod ?method .
+        }
+        ORDER BY ?method
+        """;
+    
+    List<String> methods = new ArrayList<>();
+    try (QueryExecution qexec = QueryExecutionFactory.sparqlService(config.getSparqlEndpoint(), queryString)) {
+        ResultSet results = qexec.execSelect();
+        while (results.hasNext()) {
+            QuerySolution solution = results.nextSolution();
+            methods.add(solution.getLiteral("method").getString());
+        }
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+    return methods;
+}
+
+public List<String> getSpiceLevels() {
+    String queryString = """
+        PREFIX : <http://example.org/food-ontology#>
+        
+        SELECT DISTINCT ?level WHERE {
+            ?food :spiceLevel ?level .
+        }
+        ORDER BY ?level
+        """;
+    
+    List<String> levels = new ArrayList<>();
+    try (QueryExecution qexec = QueryExecutionFactory.sparqlService(config.getSparqlEndpoint(), queryString)) {
+        ResultSet results = qexec.execSelect();
+        while (results.hasNext()) {
+            QuerySolution solution = results.nextSolution();
+            levels.add(solution.getLiteral("level").getString());
+        }
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+    return levels;
+}
+
+public List<Food> searchByCookingMethod(String method) {
+    String queryString = String.format("""
+        PREFIX : <http://example.org/food-ontology#>
+        PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+        SELECT ?food ?name ?class ?classLabel ?region ?cookingMethod ?calories WHERE {
+            ?food :name ?name ;
+                  a ?class ;
+                  :cookingMethod "%s" .
+            ?class rdfs:label ?classLabel .
+
+            OPTIONAL { ?food :region ?region }
+            OPTIONAL { ?food :calories ?calories }
+
+            FILTER(?class != <http://www.w3.org/2002/07/owl#NamedIndividual>)
+        }
+        ORDER BY ?name
+        """, method);
+
+    return executeQuery(queryString);
+}
 }

@@ -8,9 +8,9 @@ import org.springframework.context.annotation.Configuration;
 public class FoodKGConfig {
 
     private String fusekiUrl = "http://localhost:3030";
-    private String datasetName = "food-kg-v2";
+    private String datasetName = "african-middle-eastern-foods";
     private String luceneIndexPath = "./lucene-index";
-    private String imagesBasePath = "/home/lorene/Bureau/MASTER_round2/Web_semantique/controle-continu/test-jena/data/images";
+    private String imagesBasePath = "C:/Users/Swaggie/Desktop/Food_Ontology/Serializer/african_middle_eastern_data/images";
 
     // Getters et setters
     public String getFusekiUrl() {
