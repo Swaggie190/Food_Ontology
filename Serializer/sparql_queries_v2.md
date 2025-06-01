@@ -1,8 +1,8 @@
-# Requêtes SPARQL pour l'ontologie enrichie food-kg-v2
+# Requêtes SPARQL pour l'ontologie enrichie african-middle-eastern-kg
 
 ## Instructions d'utilisation
 1. Allez sur **http://localhost:3030**
-2. Sélectionnez le dataset **food-kg-v2**
+2. Sélectionnez le dataset **african-middle-eastern-kg**
 3. Cliquez sur l'onglet **query**
 4. Copiez-collez chaque requête ci-dessous
 5. Cliquez sur **Run Query**
