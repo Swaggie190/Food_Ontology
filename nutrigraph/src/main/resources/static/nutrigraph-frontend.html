@@ -857,33 +857,45 @@
 
         // Composant carte d'aliment
         function FoodCard({ food }) {
+            // Replace the getImageUrl function in your frontend with this:
             const getImageUrl = () => {
-    if (food.images && food.images.length > 0) {
-        let imagePath = food.images[0].imagePath;
-        
-        console.log("=== FRONTEND DEBUG ===");
-        console.log("Food name:", food.name);
-        console.log("Original path from DB:", imagePath);
-        
-        // Nettoyer le chemin
-        if (imagePath.startsWith('images/')) {
-            imagePath = imagePath.substring(7);
-            console.log("After removing 'images/':", imagePath);
-        }
-        
-        if (imagePath.startsWith('/')) {
-            imagePath = imagePath.substring(1);
-            console.log("After removing leading '/':", imagePath);
-        }
-        
-        const finalUrl = `${API_BASE_URL}/images/${imagePath}`;
-        console.log("Final URL:", finalUrl);
-        console.log("======================");
-        
-        return finalUrl;
-    }
-    return null;
-};
+                if (food.images && food.images.length > 0) {
+                    let imagePath = food.images[0].imagePath;
+                    
+                    console.log("=== FRONTEND DEBUG ===");
+                    console.log("Food name:", food.name);
+                    console.log("Original path from DB:", imagePath);
+                    
+                    // Handle different path formats
+                    let cleanPath = imagePath;
+                    
+                    // If path starts with 'images/', remove it
+                    if (cleanPath.startsWith('images/')) {
+                        cleanPath = cleanPath.substring(7);
+                    }
+                    
+                    // Remove leading slash if present
+                    if (cleanPath.startsWith('/')) {
+                        cleanPath = cleanPath.substring(1);
+                    }
+                    
+                    // At this point, cleanPath should be "category/filename.jpg"
+                    // If it doesn't contain a slash, we need to add the category
+                    if (!cleanPath.includes('/')) {
+                        // Derive category from food name or class
+                        const category = food.name ? food.name.replace(/\s+/g, '_').toLowerCase() : 'unknown';
+                        cleanPath = `${category}/${cleanPath}`;
+                    }
+                    
+                    const finalUrl = `${API_BASE_URL}/images/${cleanPath}`;
+                    console.log("Clean path:", cleanPath);
+                    console.log("Final URL:", finalUrl);
+                    console.log("======================");
+                    
+                    return finalUrl;
+                }
+                return null;
+            };
 
             return (
                 <div className="food-card">

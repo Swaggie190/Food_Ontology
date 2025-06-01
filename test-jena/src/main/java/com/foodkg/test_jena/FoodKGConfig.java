@@ -9,7 +9,7 @@ public class FoodKGConfig {
 
     private String fusekiUrl = "http://localhost:3030";
     private String datasetName = "african-middle-eastern-kg";
-    private String luceneIndexPath = "./lucene-index";
+    private String luceneIndexPath = "./lucene-index-african";
     private String imagesBasePath = "C:/Users/Swaggie/Desktop/Food_Ontology/Serializer/african_middle_eastern_data/images";
 
     // Getters et setters
