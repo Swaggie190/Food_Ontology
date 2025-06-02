@@ -1,0 +1,38 @@
+services:
+  # Apache Jena Fuseki service
+  fuseki:
+    image: stain/jena-fuseki:4.8.0
+    container_name: fuseki-server
+    ports:
+      - "3030:3030"
+    environment:
+      - ADMIN_PASSWORD=admin
+      - JVM_ARGS=-Xmx2g
+    volumes:
+      - ./apache-jena-fuseki-5.4.0/run/databases/african-middle-eastern-kg:/fuseki/databases/african-middle-eastern-kg
+    networks:
+      - nutrigraph-network
+
+  # NutriGraph application
+  nutrigraph:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: nutrigraph-app
+    ports:
+      - "8080:8080"
+    depends_on:
+      - fuseki
+    environment:
+      - NUTRIGRAPH_FUSEKI_URL=http://fuseki:3030
+      - NUTRIGRAPH_DATASET_NAME=african-middle-eastern-kg
+      - NUTRIGRAPH_LUCENE_INDEX_PATH=/app/lucene-index-african
+      - NUTRIGRAPH_IMAGES_BASE_PATH=/app/images
+    volumes:
+      - ./Serializer/african_middle_eastern_data/images:/app/images
+    networks:
+      - nutrigraph-network
+
+networks:
+  nutrigraph-network:
+    driver: bridge

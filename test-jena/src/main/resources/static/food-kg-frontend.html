@@ -946,21 +946,23 @@
                             
                             {food.protein !== undefined && (
                                 <div className="nutrition-item">
-                                    <div className="nutrition-value">{food.protein?.toFixed(1)}g</div>
+                                    <div className="nutrition-value">{food.protein != null ? food.protein.toFixed(1) : ''}g
+</div>
                                     <div className="nutrition-label">Protéines</div>
                                 </div>
                             )}
                             
                             {food.carbohydrates !== undefined && (
                                 <div className="nutrition-item">
-                                    <div className="nutrition-value">{food.carbohydrates?.toFixed(1)}g</div>
+                                    <div className="nutrition-value">{food.carbohydrates != null ? food.carbohydrates.toFixed(1) : ''}g
+</div>
                                     <div className="nutrition-label">Glucides</div>
                                 </div>
                             )}
                             
                             {food.fat !== undefined && (
                                 <div className="nutrition-item">
-                                    <div className="nutrition-value">{food.fat?.toFixed(1)}g</div>
+                                    <div className="nutrition-value">{{food.fat != null ? food.fat.toFixed(1) : ''}g</div>
                                     <div className="nutrition-label">Lipides</div>
                                 </div>
                             )}

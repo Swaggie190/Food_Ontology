@@ -4,9 +4,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NutriGraph - Advanced Food Intelligence Platform</title>
-    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
-    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+    <script src="nutrigraph-chatbot.js"></script>
+    <script>
+        // Initialize chatbot with API key when the page is fully loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            // Replace this with your actual Gemini API key
+            const apiKey = 'AIzaSyC9eLx2jqCWEKqPK-hTEEqaTijAykIyxsY';
+            window.nutriGraphChatbot = new NutriGraphChatbot(apiKey);
+        });
+    </script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
@@ -685,76 +694,145 @@
             color: white;
             padding: var(--spacing-xs);
             border-radius: 50%;
-            transition: all 0.3s ease;
+           /* Recognition Results Styles */
+        .recognition-results {
+            margin-top: var(--spacing-lg);
         }
-
-        .modal-close:hover {
-            background: rgba(255, 255, 255, 0.2);
-        }
-
-        /* Admin Section */
-        .admin-grid {
+        
+        .recognition-cards {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: var(--spacing-lg);
-        }
-
-        .admin-card {
-            background: white;
-            border-radius: var(--border-radius);
-            overflow: hidden;
-            box-shadow: var(--shadow-primary);
-            transition: all 0.3s ease;
-        }
-
-        .admin-card:hover {
-            transform: translateY(-5px);
-            box-shadow: var(--shadow-hover);
-        }
-
-        .admin-card-header {
-            background: var(--primary-gradient);
-            color: white;
-            padding: var(--spacing-md);
-            display: flex;
-            align-items: center;
-            gap: var(--spacing-sm);
-        }
-
-        .admin-card-icon {
-            font-size: 1.5rem;
-        }
-
-        .admin-card-content {
-            padding: var(--spacing-lg);
-        }
-
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
             gap: var(--spacing-md);
             margin-top: var(--spacing-md);
         }
-
-        .stat-card {
-            background: #f8fafc;
-            padding: var(--spacing-md);
+        
+        .recognition-card {
+            background: white;
             border-radius: var(--border-radius-sm);
-            text-align: center;
-            border-top: 4px solid #667eea;
+            box-shadow: var(--shadow-primary);
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
         }
-
-        .stat-value {
-            font-size: 2rem;
-            font-weight: 800;
-            color: #667eea;
+        
+        .recognition-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-hover);
+        }
+        
+        /* Error card styles */
+        .recognition-card.error-card {
+            background: rgba(255, 235, 235, 0.9);
+            border: 1px solid rgba(255, 100, 100, 0.3);
+            cursor: default;
+        }
+        
+        .recognition-card.error-card:hover {
+            transform: none;
+            box-shadow: var(--shadow-primary);
+        }
+        
+        .error-info h4 {
+            color: #e53e3e;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+        
+        .error-info p {
+            color: #4a5568;
+            margin-bottom: 16px;
+            line-height: 1.5;
+        }
+        
+        .retry-button {
+            background: var(--primary-gradient);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+        
+        .retry-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+        
+        .recognition-card-content {
+            padding: var(--spacing-md);
+        }
+        
+        .recognition-card-image {
+            width: 100%;
+            height: 150px;
+            overflow: hidden;
+            border-radius: var(--border-radius-sm);
+            margin-bottom: var(--spacing-sm);
+        }
+        
+        .recognition-card-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+        
+        .recognition-card:hover .recognition-card-image img {
+            transform: scale(1.05);
+        }
+        
+        .recognition-card-info h4 {
             margin-bottom: var(--spacing-xs);
+            color: var(--text-primary);
         }
-
-        .stat-label {
+        
+        .confidence-bar-container {
+            width: 100%;
+            height: 8px;
+            background-color: #f0f0f0;
+            border-radius: 4px;
+            margin-bottom: 5px;
+            overflow: hidden;
+        }
+        
+        .confidence-bar {
+            height: 100%;
+            background: var(--primary-gradient);
+            border-radius: 4px;
+        }
+        
+        .confidence-text {
             font-size: 0.8rem;
             color: var(--text-secondary);
-            text-transform: uppercase;
+        }
+        
+        /* Fallback content for when API is unavailable */
+        .fallback-content {
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: var(--border-radius-sm);
+            box-shadow: var(--shadow-primary);
+            margin: 20px 0;
+            text-align: center;
+        }
+        
+        .fallback-content h3 {
+            color: #4a5568;
+            margin-bottom: 10px;
+        }
+        
+        .fallback-content p {
+            color: #718096;
+            margin-bottom: 15px;
+        }
+        
+        .fallback-content .btn {
+            margin-top: 10px;
+        }    text-transform: uppercase;
             letter-spacing: 0.5px;
         }
 
@@ -944,6 +1022,7 @@
             const [showAutocomplete, setShowAutocomplete] = useState(false);
             const [selectedFood, setSelectedFood] = useState(null);
             const [showModal, setShowModal] = useState(false);
+            const [backendError, setBackendError] = useState(false);
 
             // Load metadata on component mount
             useEffect(() => {
@@ -1017,6 +1096,12 @@
                 } catch (error) {
                     console.error('Search error:', error);
                     setResults([]);
+                    setPagination({
+                        currentPage: 0,
+                        totalPages: 0,
+                        totalElements: 0,
+                        size: 20
+                    });
                 } finally {
                     setLoading(false);
                 }
@@ -1026,22 +1111,32 @@
                 if (!selectedFile) return;
 
                 setRecognitionLoading(true);
-                try {
-                    const formData = new FormData();
-                    formData.append('image', selectedFile);
-                    formData.append('confidenceThreshold', '0.1');
-                    formData.append('maxResults', '5');
+                setRecognitionResults([]);
+                setSearchQuery('');
 
+                const formData = new FormData();
+                formData.append('image', selectedFile);
+
+                try {
                     const response = await fetch(`${API_BASE_URL}/foods/recognize`, {
                         method: 'POST',
                         body: formData
                     });
 
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+
                     const data = await response.json();
-                    setRecognitionResults(data.results || []);
+                    setRecognitionResults(data);
                 } catch (error) {
-                    console.error('Recognition error:', error);
-                    setRecognitionResults([]);
+                    console.error('Error during image recognition:', error);
+                    setRecognitionResults([{
+                        food: 'Error',
+                        confidence: 0,
+                        error: true,
+                        message: 'We encountered an issue with image recognition. Please try again or use text search instead.'
+                    }]);
                 } finally {
                     setRecognitionLoading(false);
                 }
@@ -1204,7 +1299,7 @@
             };
 
             return (
-                <>
+                <React.Fragment>
                     <div className="glass-card search-section">
                         <div className="section-header">
                             <h1 className="section-title">Intelligent Food Discovery</h1>
@@ -1319,7 +1414,7 @@
                             onFoodClick={handleFoodClick}
                         />
                     )}
-                </>
+                </React.Fragment>
             );
         }
 
@@ -1374,18 +1469,17 @@
                             style={{ flex: 1 }}
                         >
                             {loading ? (
-                                <>
+                                <React.Fragment>
                                     <i className="fas fa-spinner fa-spin"></i>
                                     Searching...
-                                </>
+                                </React.Fragment>
                             ) : (
-                                <>
+                                <React.Fragment>
                                     <i className="fas fa-search"></i>
-                                    Search Database
-                                </>
+                                    Search Foods
+                                </React.Fragment>
                             )}
                         </button>
-                        
                         <button
                             className="btn btn-outline"
                             onClick={resetFilters}
@@ -1403,6 +1497,49 @@
             selectedFile, setSelectedFile, fileInputRef, handleFileSelect, 
             handleDrop, handleDragOver, handleImageRecognition, recognitionLoading, resetFilters
         }) {
+            // Loading messages to show during image processing
+            const loadingMessages = [
+                "Analyzing food patterns...",
+                "Identifying ingredients...",
+                "Matching with our database...",
+                "Calculating nutritional profile...",
+                "Processing image features...",
+                "Applying AI recognition algorithms...",
+                "Comparing with known food items..."
+            ];
+            
+            // State for the current loading message
+            const [loadingMessage, setLoadingMessage] = useState(loadingMessages[0]);
+            
+            // Change the loading message every 2 seconds during processing
+            useEffect(() => {
+                let messageInterval;
+                if (recognitionLoading) {
+                    messageInterval = setInterval(() => {
+                        setLoadingMessage(loadingMessages[Math.floor(Math.random() * loadingMessages.length)]);
+                    }, 2000);
+                }
+                
+                return () => {
+                    if (messageInterval) clearInterval(messageInterval);
+                };
+            }, [recognitionLoading]);
+            
+            // Preview the selected image
+            const [imagePreview, setImagePreview] = useState(null);
+            
+            useEffect(() => {
+                if (selectedFile) {
+                    const reader = new FileReader();
+                    reader.onloadend = () => {
+                        setImagePreview(reader.result);
+                    };
+                    reader.readAsDataURL(selectedFile);
+                } else {
+                    setImagePreview(null);
+                }
+            }, [selectedFile]);
+            
             return (
                 <div className="form-grid">
                     <div className="input-group">
@@ -1411,7 +1548,8 @@
                             className={`file-upload ${selectedFile ? 'active' : ''}`}
                             onDrop={handleDrop}
                             onDragOver={handleDragOver}
-                            onClick={() => fileInputRef.current?.click()}
+                            onClick={() => fileInputRef.current && fileInputRef.current.click()}
+
                         >
                             <input
                                 ref={fileInputRef}
@@ -1422,17 +1560,31 @@
                             />
                             
                             {selectedFile ? (
-                                <>
+                                <React.Fragment>
                                     <i className="fas fa-check-circle file-upload-icon" style={{ color: '#48bb78' }}></i>
                                     <div className="file-upload-text">{selectedFile.name}</div>
                                     <div className="file-upload-hint">File ready for analysis</div>
-                                </>
+                                    {imagePreview && (
+                                        <div style={{ marginTop: 'var(--spacing-md)', textAlign: 'center' }}>
+                                            <img 
+                                                src={imagePreview} 
+                                                alt="Preview" 
+                                                style={{ 
+                                                    maxWidth: '100%', 
+                                                    maxHeight: '200px', 
+                                                    borderRadius: 'var(--border-radius-sm)',
+                                                    boxShadow: 'var(--shadow-primary)'
+                                                }} 
+                                            />
+                                        </div>
+                                    )}
+                                </React.Fragment>
                             ) : (
-                                <>
+                                <React.Fragment>
                                     <i className="fas fa-cloud-upload-alt file-upload-icon"></i>
                                     <div className="file-upload-text">Drop your image here or click to browse</div>
                                     <div className="file-upload-hint">Supports JPG, PNG, GIF up to 10MB</div>
-                                </>
+                                </React.Fragment>
                             )}
                         </div>
                     </div>
@@ -1445,15 +1597,15 @@
                             style={{ flex: 1 }}
                         >
                             {recognitionLoading ? (
-                                <>
+                                <React.Fragment>
                                     <i className="fas fa-spinner fa-spin"></i>
-                                    Analyzing Image...
-                                </>
+                                    {loadingMessage}
+                                </React.Fragment>
                             ) : (
-                                <>
+                                <React.Fragment>
                                     <i className="fas fa-magic"></i>
                                     Identify Food
-                                </>
+                                </React.Fragment>
                             )}
                         </button>
                         
@@ -1531,15 +1683,15 @@
                             style={{ flex: 1 }}
                         >
                             {loading ? (
-                                <>
+                                <React.Fragment>
                                     <i className="fas fa-spinner fa-spin"></i>
                                     Exploring...
-                                </>
+                                </React.Fragment>
                             ) : (
-                                <>
+                                <React.Fragment>
                                     <i className="fas fa-globe-africa"></i>
                                     Explore Cuisine
-                                </>
+                                </React.Fragment>
                             )}
                         </button>
                         
@@ -1643,15 +1795,15 @@
                             style={{ flex: 1 }}
                         >
                             {loading ? (
-                                <>
+                                <React.Fragment>
                                     <i className="fas fa-spinner fa-spin"></i>
                                     Analyzing...
-                                </>
+                                </React.Fragment>
                             ) : (
-                                <>
+                                <React.Fragment>
                                     <i className="fas fa-heartbeat"></i>
                                     Find Nutrition Match
-                                </>
+                                </React.Fragment>
                             )}
                         </button>
                         
@@ -1669,13 +1821,23 @@
 
         // Recognition Results Component
         function RecognitionResults({ results, onFoodClick }) {
+            // Ref for scrolling to the results section
+            const resultsRef = useRef(null);
+            
+            // Scroll to results section when component mounts
+            useEffect(() => {
+                if (resultsRef.current) {
+                    resultsRef.current.scrollIntoView({ behavior: 'smooth' });
+                }
+            }, []);
+            
             return (
-                <div className="glass-card recognition-results fade-in">
+                <div className="glass-card recognition-results fade-in" ref={resultsRef}>
                     <div className="section-header">
                         <h2 className="section-title" style={{ fontSize: '2rem' }}>Recognition Results</h2>
                         <p className="section-subtitle">AI-powered food identification results</p>
                     </div>
-
+                    
                     <div style={{ display: 'grid', gap: 'var(--spacing-md)' }}>
                         {results.map((result, index) => (
                             <div key={index} className="recognition-card slide-up" style={{ animationDelay: `${index * 0.1}s` }}>
@@ -1699,6 +1861,26 @@
                                         style={{ width: `${result.confidence * 100}%` }}
                                     ></div>
                                 </div>
+                                
+                                {/* Display food image if available */}
+                                {result.foodDetails && result.foodDetails.images && result.foodDetails.images.length > 0 && (
+                                    <div style={{ marginTop: 'var(--spacing-sm)', textAlign: 'center' }}>
+                                        <img 
+                                            src={`${API_BASE_URL}/images/${result.foodDetails.images[0].imagePath.replace(/^(images\/|\/)/g, '')}`}
+                                            alt={result.predictedName}
+                                            style={{ 
+                                                maxWidth: '100%', 
+                                                maxHeight: '200px', 
+                                                borderRadius: 'var(--border-radius-sm)',
+                                                marginBottom: 'var(--spacing-sm)',
+                                                boxShadow: 'var(--shadow-primary)'
+                                            }}
+                                            onError={(e) => {
+                                                e.target.style.display = 'none';
+                                            }}
+                                        />
+                                    </div>
+                                )}
 
                                 {result.ingredients && result.ingredients.length > 0 && (
                                     <div style={{ marginTop: 'var(--spacing-sm)' }}>
@@ -1887,21 +2069,23 @@
                             
                             {food.protein !== undefined && (
                                 <div className="nutrition-item">
-                                    <div className="nutrition-value">{food.protein?.toFixed(1)}g</div>
+                                    <div className="nutrition-value">{food.protein != null ? food.protein.toFixed(1) : ''}g
+</div>
                                     <div className="nutrition-label">Protein</div>
                                 </div>
                             )}
                             
                             {food.carbohydrates !== undefined && (
                                 <div className="nutrition-item">
-                                    <div className="nutrition-value">{food.carbohydrates?.toFixed(1)}g</div>
+                                    <div className="nutrition-value">{food.carbohydrates != null ? food.carbohydrates.toFixed(1) : ''}g
+</div>
                                     <div className="nutrition-label">Carbs</div>
                                 </div>
                             )}
                             
                             {food.fat !== undefined && (
                                 <div className="nutrition-item">
-                                    <div className="nutrition-value">{food.fat?.toFixed(1)}g</div>
+                                    <div className="nutrition-value">{food.fat != null ? food.fat.toFixed(1) : ''}g</div>
                                     <div className="nutrition-label">Fat</div>
                                 </div>
                             )}
@@ -2184,15 +2368,16 @@
                             <div className="admin-card-content">
                                 <div className="stats-grid">
                                     <div className="stat-card">
-                                        <div className="stat-value">{stats?.totalDocuments?.toLocaleString() || '0'}</div>
+                                        <div className="stat-value">{stats && stats.totalDocuments ? stats.totalDocuments.toLocaleString() : '0'}
+</div>
                                         <div className="stat-label">Food Items</div>
                                     </div>
                                     <div className="stat-card">
-                                        <div className="stat-value">{culturalStats?.totalRegions || '0'}</div>
+                                        <div className="stat-value">{stats && stats.totalRegions ? stats.totalRegions.toLocaleString() : '0'}</div>
                                         <div className="stat-label">Regions</div>
                                     </div>
                                     <div className="stat-card">
-                                        <div className="stat-value">{stats?.indexValid ? 'Active' : 'Inactive'}</div>
+                                        <div className="stat-value">{stats && typeof stats.indexValid !== 'undefined' ? (stats.indexValid ? 'Active' : 'Inactive') : 'Inactive'}</div>
                                         <div className="stat-label">Index Status</div>
                                     </div>
                                 </div>
@@ -2205,7 +2390,7 @@
                                 <h3>Cultural Distribution</h3>
                             </div>
                             <div className="admin-card-content">
-                                {culturalStats?.regions && (
+                               {culturalStats && culturalStats.regions && (
                                     <div style={{ display: 'grid', gap: 'var(--spacing-sm)' }}>
                                         {culturalStats.regions.slice(0, 5).map((region, index) => (
                                             <div key={index} style={{ 
@@ -2218,7 +2403,7 @@
                                             }}>
                                                 <span>{region.replace(/_/g, ' ')}</span>
                                                 <span style={{ fontWeight: '600', color: 'var(--text-primary)' }}>
-                                                    {culturalStats.foodsByRegion?.[region] || 0} items
+                                                    {culturalStats && culturalStats.foodsByRegion && culturalStats.foodsByRegion[region] ? culturalStats.foodsByRegion[region] : 0} items
                                                 </span>
                                             </div>
                                         ))}
@@ -2358,7 +2543,7 @@
                                         border: '1px solid #e2e8f0'
                                     }}>
                                         <div style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
-                                            <strong>Documents:</strong> {indexStats.totalDocuments?.toLocaleString() || '0'}
+                                            <strong>Documents:</strong> {indexStats && indexStats.totalDocuments ? indexStats.totalDocuments.toLocaleString() : '0'}
                                             {indexStats.deletedDocuments > 0 && (
                                                 <span> • <strong>Deleted:</strong> {indexStats.deletedDocuments}</span>
                                             )}
@@ -2373,15 +2558,15 @@
                                     style={{ width: '100%' }}
                                 >
                                     {reindexing ? (
-                                        <>
+                                        <React.Fragment>
                                             <i className="fas fa-spinner fa-spin"></i>
                                             Rebuilding Index...
-                                        </>
+                                        </React.Fragment>
                                     ) : (
-                                        <>
+                                        <React.Fragment>
                                             <i className="fas fa-refresh"></i>
                                             Rebuild Index
-                                        </>
+                                        </React.Fragment>
                                     )}
                                 </button>
                             </div>
@@ -2399,7 +2584,7 @@
                                             {loadingStats ? (
                                                 <i className="fas fa-spinner fa-spin"></i>
                                             ) : (
-                                                indexStats?.totalDocuments?.toLocaleString() || '0'
+                                                (indexStats && indexStats.totalDocuments ? indexStats.totalDocuments.toLocaleString() : '0')
                                             )}
                                         </div>
                                         <div className="stat-label">Indexed Items</div>
@@ -2409,7 +2594,7 @@
                                             {loadingStats ? (
                                                 <i className="fas fa-spinner fa-spin"></i>
                                             ) : (
-                                                indexStats?.indexValid ? 'Healthy' : 'Error'
+                                                (indexStats && indexStats.indexValid ? 'Healthy' : 'Error')
                                             )}
                                         </div>
                                         <div className="stat-label">Index Status</div>
