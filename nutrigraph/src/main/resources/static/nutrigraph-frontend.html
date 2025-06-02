@@ -1,14 +1,37 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Food Knowledge Graph </title>
+    <title>NutriGraph - Advanced Food Intelligence Platform</title>
     <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --success-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            --warning-gradient: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+            --dark-gradient: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            --glass-bg: rgba(255, 255, 255, 0.25);
+            --glass-border: rgba(255, 255, 255, 0.18);
+            --text-primary: #2d3748;
+            --text-secondary: #718096;
+            --bg-primary: #f8fafc;
+            --shadow-primary: 0 20px 40px rgba(0, 0, 0, 0.1);
+            --shadow-hover: 0 30px 60px rgba(0, 0, 0, 0.15);
+            --border-radius: 20px;
+            --border-radius-sm: 12px;
+            --spacing-xs: 0.5rem;
+            --spacing-sm: 1rem;
+            --spacing-md: 1.5rem;
+            --spacing-lg: 2rem;
+            --spacing-xl: 3rem;
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -16,380 +39,774 @@
         }
 
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Poppins', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
             min-height: 100vh;
-            color: #1a202c;
+            color: var(--text-primary);
+            line-height: 1.6;
         }
 
         .app-container {
             min-height: 100vh;
-            background: rgba(255, 255, 255, 0.95);
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+
+        /* Header Styles */
+        .header {
+            background: var(--dark-gradient);
+            color: white;
+            padding: var(--spacing-md) 0;
+            box-shadow: var(--shadow-primary);
+            position: sticky;
+            top: 0;
+            z-index: 100;
             backdrop-filter: blur(20px);
         }
 
-        .header {
-            background: linear-gradient(135deg, #2d3748 0%, #4a5568 100%);
-            color: white;
-            padding: 1.5rem 0;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-        }
-
         .header-content {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
-            padding: 0 2rem;
+            padding: 0 var(--spacing-lg);
             display: flex;
             align-items: center;
             justify-content: space-between;
+            flex-wrap: wrap;
+            gap: var(--spacing-md);
         }
 
-        .logo {
+        .brand {
             display: flex;
             align-items: center;
-            gap: 1rem;
-            font-size: 1.5rem;
-            font-weight: 700;
+            gap: var(--spacing-md);
         }
 
-        .logo i {
-            font-size: 2rem;
-            color: #68d391;
+        .brand-icon {
+            width: 50px;
+            height: 50px;
+            background: var(--success-gradient);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .brand-text {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .brand-title {
+            font-size: 1.8rem;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+        }
+
+        .brand-subtitle {
+            font-size: 0.9rem;
+            opacity: 0.8;
+            font-weight: 400;
         }
 
         .nav-tabs {
             display: flex;
-            gap: 0.5rem;
+            gap: var(--spacing-xs);
+            background: rgba(255, 255, 255, 0.1);
+            padding: var(--spacing-xs);
+            border-radius: 50px;
+            backdrop-filter: blur(10px);
         }
 
         .nav-tab {
-            padding: 0.75rem 1.5rem;
-            background: rgba(255, 255, 255, 0.1);
+            padding: var(--spacing-sm) var(--spacing-md);
+            background: transparent;
             border: none;
-            border-radius: 2rem;
+            border-radius: 50px;
             color: white;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             font-weight: 500;
+            font-size: 0.95rem;
+            position: relative;
+            overflow: hidden;
         }
 
-        .nav-tab:hover, .nav-tab.active {
+        .nav-tab::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
             background: rgba(255, 255, 255, 0.2);
-            transform: translateY(-2px);
+            transition: left 0.3s ease;
         }
 
+        .nav-tab:hover::before {
+            left: 0;
+        }
+
+        .nav-tab.active {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .nav-tab i {
+            margin-right: var(--spacing-xs);
+        }
+
+        /* Main Content */
         .main-content {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
-            padding: 2rem;
+            padding: var(--spacing-xl) var(--spacing-lg);
         }
 
+        /* Glass Card Component */
+        .glass-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--border-radius);
+            padding: var(--spacing-xl);
+            box-shadow: var(--shadow-primary);
+            margin-bottom: var(--spacing-lg);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .glass-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        /* Search Section */
         .search-section {
-            background: white;
-            border-radius: 2rem;
-            padding: 3rem;
-            margin-bottom: 2rem;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.3);
+            margin-bottom: var(--spacing-xl);
         }
 
-        .search-header {
+        .section-header {
             text-align: center;
-            margin-bottom: 2rem;
+            margin-bottom: var(--spacing-xl);
         }
 
-        .search-title {
-            font-size: 2.5rem;
+        .section-title {
+            font-size: 3rem;
             font-weight: 800;
-            background: linear-gradient(135deg, #667eea, #764ba2);
+            background: var(--primary-gradient);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            margin-bottom: 0.5rem;
+            background-clip: text;
+            margin-bottom: var(--spacing-sm);
+            letter-spacing: -0.02em;
         }
 
-        .search-subtitle {
-            color: #718096;
+        .section-subtitle {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            font-weight: 400;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .search-tabs {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: var(--spacing-sm);
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .search-tab {
+            background: white;
+            border: 2px solid transparent;
+            border-radius: var(--border-radius-sm);
+            padding: var(--spacing-md);
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .search-tab::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: var(--primary-gradient);
+            transition: left 0.3s ease;
+            z-index: -1;
+        }
+
+        .search-tab.active::before {
+            left: 0;
+        }
+
+        .search-tab.active {
+            color: white;
+            border-color: transparent;
+            transform: translateY(-3px);
+            box-shadow: 0 15px 30px rgba(102, 126, 234, 0.3);
+        }
+
+        .search-tab-icon {
+            font-size: 2rem;
+            margin-bottom: var(--spacing-sm);
+            display: block;
+        }
+
+        .search-tab-title {
+            font-weight: 600;
             font-size: 1.1rem;
         }
 
-        .search-form {
-            display: grid;
-            gap: 1.5rem;
+        .search-tab-desc {
+            font-size: 0.9rem;
+            opacity: 0.8;
+            margin-top: var(--spacing-xs);
         }
 
-        .search-input-group {
+        /* Form Elements */
+        .form-grid {
+            display: grid;
+            gap: var(--spacing-md);
+        }
+
+        .input-group {
             position: relative;
         }
 
-        .search-input {
-            width: 100%;
-            padding: 1rem 1.5rem 1rem 3rem;
-            border: 2px solid #e2e8f0;
-            border-radius: 1rem;
-            font-size: 1.1rem;
-            transition: all 0.3s ease;
-            background: #f7fafc;
+        .input-label {
+            display: block;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: var(--spacing-xs);
+            font-size: 0.95rem;
         }
 
-        .search-input:focus {
+        .form-input {
+            width: 100%;
+            padding: var(--spacing-md) var(--spacing-md) var(--spacing-md) 3rem;
+            border: 2px solid #e2e8f0;
+            border-radius: var(--border-radius-sm);
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: white;
+            font-family: inherit;
+        }
+
+        .form-input:focus {
             outline: none;
             border-color: #667eea;
-            background: white;
             box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            transform: translateY(-2px);
         }
 
-        .search-icon {
+        .input-icon {
             position: absolute;
-            left: 1rem;
+            left: var(--spacing-md);
             top: 50%;
             transform: translateY(-50%);
-            color: #a0aec0;
-            font-size: 1.2rem;
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            z-index: 2;
         }
 
         .filters-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 1rem;
-        }
-
-        .filter-group {
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-        }
-
-        .filter-label {
-            font-weight: 600;
-            color: #4a5568;
-            font-size: 0.9rem;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .filter-select, .filter-input {
-            padding: 0.75rem 1rem;
-            border: 1px solid #e2e8f0;
-            border-radius: 0.75rem;
-            font-size: 1rem;
-            transition: all 0.3s ease; 
-            background: white;
-        }
-
-        .filter-select:focus, .filter-input:focus {
-            outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            gap: var(--spacing-md);
+            margin-top: var(--spacing-lg);
         }
 
         .range-inputs {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 0.5rem;
+            gap: var(--spacing-sm);
         }
 
-        .search-button {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
+        .btn {
+            padding: var(--spacing-md) var(--spacing-lg);
             border: none;
-            padding: 1rem 2rem;
-            border-radius: 1rem;
-            font-size: 1.1rem;
+            border-radius: var(--border-radius-sm);
             font-weight: 600;
+            font-size: 1rem;
             cursor: pointer;
-            transition: all 0.3s ease;
-            display: flex;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: inline-flex;
             align-items: center;
-            justify-content: center;
-            gap: 0.5rem;
-            margin-top: 1rem;
+            gap: var(--spacing-xs);
+            text-decoration: none;
+            font-family: inherit;
+            position: relative;
+            overflow: hidden;
         }
 
-        .search-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
         }
 
-        .search-button:disabled {
-            opacity: 0.7;
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn-primary {
+            background: var(--primary-gradient);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 30px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: var(--secondary-gradient);
+            color: white;
+        }
+
+        .btn-success {
+            background: var(--success-gradient);
+            color: white;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid #e2e8f0;
+            color: var(--text-primary);
+        }
+
+        .btn-outline:hover {
+            background: var(--primary-gradient);
+            color: white;
+            border-color: transparent;
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
             cursor: not-allowed;
             transform: none;
         }
 
-        .results-section {
+        /* File Upload */
+        .file-upload {
+            border: 3px dashed #e2e8f0;
+            border-radius: var(--border-radius);
+            padding: var(--spacing-xl);
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
             background: white;
-            border-radius: 2rem;
-            padding: 2rem;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .file-upload:hover {
+            border-color: #667eea;
+            background: #f8fafc;
+        }
+
+        .file-upload.active {
+            border-color: #667eea;
+            background: rgba(102, 126, 234, 0.05);
+        }
+
+        .file-upload-icon {
+            font-size: 3rem;
+            color: #667eea;
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .file-upload-text {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .file-upload-hint {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        /* Results Grid */
+        .results-section {
+            margin-top: var(--spacing-xl);
         }
 
         .results-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 2rem;
-            padding-bottom: 1rem;
-            border-bottom: 2px solid #f7fafc;
+            margin-bottom: var(--spacing-lg);
+            flex-wrap: wrap;
+            gap: var(--spacing-md);
         }
 
         .results-count {
             font-size: 1.2rem;
             font-weight: 600;
-            color: #4a5568;
         }
 
-        .sort-controls {
-            display: flex;
-            gap: 1rem;
-            align-items: center;
-        }
-
-        .food-grid {
+        .results-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-            gap: 2rem;
+            gap: var(--spacing-lg);
         }
 
         .food-card {
             background: white;
-            border-radius: 1.5rem;
+            border-radius: var(--border-radius);
             overflow: hidden;
-            border: 1px solid #e2e8f0;
-            transition: all 0.3s ease;
+            box-shadow: var(--shadow-primary);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             cursor: pointer;
+            position: relative;
+        }
+
+        .food-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--primary-gradient);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: 1;
+        }
+
+        .food-card:hover::before {
+            opacity: 0.1;
         }
 
         .food-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
-            border-color: #667eea;
+            transform: translateY(-10px);
+            box-shadow: var(--shadow-hover);
         }
 
         .food-image {
             width: 100%;
-            height: 200px;
+            height: 220px;
             background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
             display: flex;
             align-items: center;
             justify-content: center;
-            color: #a0aec0;
-            font-size: 3rem;
             position: relative;
+            overflow: hidden;
         }
 
-        .food-card-content {
-            padding: 1.5rem;
+        .food-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+        .food-card:hover .food-image img {
+            transform: scale(1.1);
+        }
+
+        .food-image i {
+            font-size: 3rem;
+            color: #a0aec0;
+        }
+
+        .food-content {
+            padding: var(--spacing-md);
+            position: relative;
+            z-index: 2;
         }
 
         .food-name {
             font-size: 1.3rem;
             font-weight: 700;
-            color: #2d3748;
-            margin-bottom: 0.5rem;
+            margin-bottom: var(--spacing-xs);
+            color: var(--text-primary);
         }
 
-        .food-class {
+        .food-category {
             display: inline-block;
-            background: linear-gradient(135deg, #667eea, #764ba2);
+            background: var(--primary-gradient);
             color: white;
-            padding: 0.25rem 0.75rem;
-            border-radius: 1rem;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
             font-size: 0.8rem;
             font-weight: 600;
-            margin-bottom: 1rem;
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .food-description {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            line-height: 1.5;
+            margin-bottom: var(--spacing-md);
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
         }
 
         .nutrition-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 0.75rem;
-            margin-top: 1rem;
+            gap: var(--spacing-sm);
         }
 
         .nutrition-item {
-            background: #f7fafc;
-            padding: 0.75rem;
-            border-radius: 0.75rem;
+            background: #f8fafc;
+            padding: var(--spacing-sm);
+            border-radius: var(--border-radius-sm);
             text-align: center;
+            border-left: 4px solid transparent;
+            transition: all 0.3s ease;
         }
+
+        .nutrition-item:nth-child(1) { border-left-color: #f56565; }
+        .nutrition-item:nth-child(2) { border-left-color: #4299e1; }
+        .nutrition-item:nth-child(3) { border-left-color: #48bb78; }
+        .nutrition-item:nth-child(4) { border-left-color: #ed8936; }
 
         .nutrition-value {
             font-size: 1.1rem;
             font-weight: 700;
-            color: #667eea;
+            color: var(--text-primary);
         }
 
         .nutrition-label {
             font-size: 0.8rem;
-            color: #718096;
+            color: var(--text-secondary);
             text-transform: uppercase;
             letter-spacing: 0.5px;
+            margin-top: 2px;
         }
 
-        .pagination {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 1rem;
-            margin-top: 3rem;
-        }
-
-        .pagination-button {
-            padding: 0.75rem 1rem;
-            border: 1px solid #e2e8f0;
-            background: white;
-            border-radius: 0.75rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-weight: 500;
-        }
-
-        .pagination-button:hover:not(:disabled) {
-            background: #667eea;
-            color: white;
-            border-color: #667eea;
-        }
-
-        .pagination-button:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
-        .pagination-button.active {
-            background: #667eea;
-            color: white;
-            border-color: #667eea;
-        }
-
+        /* Loading States */
         .loading {
             text-align: center;
-            padding: 3rem;
-            color: #718096;
+            padding: var(--spacing-xl);
         }
 
-        .loading i {
-            font-size: 2rem;
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid #e2e8f0;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
             animation: spin 1s linear infinite;
-            color: #667eea;
+            margin: 0 auto var(--spacing-md);
         }
 
         @keyframes spin {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
 
         .empty-state {
             text-align: center;
-            padding: 4rem 2rem;
-            color: #718096;
+            padding: var(--spacing-xl);
+            color: var(--text-secondary);
         }
 
-        .empty-state i {
+        .empty-state-icon {
             font-size: 4rem;
             color: #e2e8f0;
-            margin-bottom: 1rem;
+            margin-bottom: var(--spacing-md);
         }
 
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: var(--border-radius);
+            max-width: 900px;
+            max-height: 90vh;
+            overflow-y: auto;
+            margin: var(--spacing-lg);
+            box-shadow: 0 50px 100px rgba(0, 0, 0, 0.3);
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: var(--spacing-lg);
+            border-bottom: 1px solid #e2e8f0;
+            background: var(--primary-gradient);
+            color: white;
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: white;
+            padding: var(--spacing-xs);
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+
+        .modal-close:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        /* Admin Section */
+        .admin-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: var(--spacing-lg);
+        }
+
+        .admin-card {
+            background: white;
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            box-shadow: var(--shadow-primary);
+            transition: all 0.3s ease;
+        }
+
+        .admin-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .admin-card-header {
+            background: var(--primary-gradient);
+            color: white;
+            padding: var(--spacing-md);
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+        }
+
+        .admin-card-icon {
+            font-size: 1.5rem;
+        }
+
+        .admin-card-content {
+            padding: var(--spacing-lg);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: var(--spacing-md);
+            margin-top: var(--spacing-md);
+        }
+
+        .stat-card {
+            background: #f8fafc;
+            padding: var(--spacing-md);
+            border-radius: var(--border-radius-sm);
+            text-align: center;
+            border-top: 4px solid #667eea;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #667eea;
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .section-title {
+                font-size: 2rem;
+            }
+
+            .header-content {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .nav-tabs {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            .filters-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .results-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .results-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .modal-content {
+                margin: var(--spacing-sm);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .main-content {
+                padding: var(--spacing-lg) var(--spacing-sm);
+            }
+
+            .glass-card {
+                padding: var(--spacing-lg);
+            }
+
+            .search-tabs {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Autocomplete */
         .autocomplete-dropdown {
             position: absolute;
             top: 100%;
@@ -397,47 +814,84 @@
             right: 0;
             background: white;
             border: 1px solid #e2e8f0;
-            border-radius: 0.75rem;
-            margin-top: 0.25rem;
+            border-radius: var(--border-radius-sm);
+            margin-top: 4px;
             max-height: 200px;
             overflow-y: auto;
             z-index: 1000;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            box-shadow: var(--shadow-primary);
         }
 
         .autocomplete-item {
-            padding: 0.75rem 1rem;
+            padding: var(--spacing-sm) var(--spacing-md);
             cursor: pointer;
             transition: background-color 0.2s ease;
+            border-bottom: 1px solid #f7fafc;
         }
 
         .autocomplete-item:hover {
-            background: #f7fafc;
+            background: #f8fafc;
         }
 
-        @media (max-width: 768px) {
-            .header-content {
-                flex-direction: column;
-                gap: 1rem;
-            }
+        .autocomplete-item:last-child {
+            border-bottom: none;
+        }
 
-            .search-title {
-                font-size: 2rem;
-            }
+        /* Recognition Results */
+        .recognition-results {
+            margin-top: var(--spacing-lg);
+        }
 
-            .filters-grid {
-                grid-template-columns: 1fr;
-            }
+        .recognition-card {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: var(--spacing-lg);
+            margin-bottom: var(--spacing-md);
+            box-shadow: var(--shadow-primary);
+            border-left: 4px solid #48bb78;
+        }
 
-            .food-grid {
-                grid-template-columns: 1fr;
-            }
+        .confidence-bar {
+            width: 100%;
+            height: 8px;
+            background: #e2e8f0;
+            border-radius: 4px;
+            overflow: hidden;
+            margin: var(--spacing-sm) 0;
+        }
 
-            .results-header {
-                flex-direction: column;
-                gap: 1rem;
-                align-items: flex-start;
-            }
+        .confidence-fill {
+            height: 100%;
+            background: var(--success-gradient);
+            transition: width 0.3s ease;
+        }
+
+        /* Animations */
+        .fade-in {
+            animation: fadeIn 0.5s ease;
+        }
+
+        .slide-up {
+            animation: slideUp 0.5s ease;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary-gradient);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #5a67d8;
         }
     </style>
 </head>
@@ -445,25 +899,32 @@
     <div id="root"></div>
 
     <script type="text/babel">
-        const { useState, useEffect, useCallback } = React;
+        const { useState, useEffect, useCallback, useRef } = React;
 
-        // Configuration API
+        // API Configuration
         const API_BASE_URL = 'http://localhost:8080/api';
 
-        // Composant principal
-        function App() {
-            const [activeTab, setActiveTab] = useState('search');
+        // Main Application Component
+        function NutriGraphApp() {
+            const [activeTab, setActiveTab] = useState('discover');
+            const [searchMode, setSearchMode] = useState('text');
             const [searchQuery, setSearchQuery] = useState('');
+            const [selectedFile, setSelectedFile] = useState(null);
             const [filters, setFilters] = useState({
                 foodClass: '',
                 foodGroup: '',
+                region: '',
+                cookingMethod: '',
+                spiceLevel: '',
                 minCalories: '',
                 maxCalories: '',
                 minProtein: '',
                 maxProtein: ''
             });
             const [results, setResults] = useState([]);
+            const [recognitionResults, setRecognitionResults] = useState([]);
             const [loading, setLoading] = useState(false);
+            const [recognitionLoading, setRecognitionLoading] = useState(false);
             const [pagination, setPagination] = useState({
                 currentPage: 0,
                 totalPages: 0,
@@ -472,23 +933,45 @@
             });
             const [sortBy, setSortBy] = useState('name');
             const [sortDirection, setSortDirection] = useState('asc');
-            const [foodClasses, setFoodClasses] = useState([]);
-            const [foodGroups, setFoodGroups] = useState([]);
+            const [metadata, setMetadata] = useState({
+                foodClasses: [],
+                foodGroups: [],
+                regions: [],
+                cookingMethods: [],
+                spiceLevels: []
+            });
             const [autocomplete, setAutocomplete] = useState([]);
             const [showAutocomplete, setShowAutocomplete] = useState(false);
+            const [selectedFood, setSelectedFood] = useState(null);
+            const [showModal, setShowModal] = useState(false);
 
-            // Charger les classes et groupes d'aliments
+            // Load metadata on component mount
             useEffect(() => {
-                Promise.all([
-                    fetch(`${API_BASE_URL}/foods/classes`).then(r => r.json()),
-                    fetch(`${API_BASE_URL}/foods/groups`).then(r => r.json())
-                ]).then(([classes, groups]) => {
-                    setFoodClasses(classes);
-                    setFoodGroups(groups);
-                }).catch(console.error);
+                loadMetadata();
             }, []);
 
-            // Autocomplétion
+            const loadMetadata = async () => {
+                try {
+                    const [classes, groups, regions, methods, levels] = await Promise.all([
+                        fetch(`${API_BASE_URL}/foods/classes`).then(r => r.json()),
+                        fetch(`${API_BASE_URL}/foods/groups`).then(r => r.json()),
+                        fetch(`${API_BASE_URL}/foods/regions`).then(r => r.json()),
+                        fetch(`${API_BASE_URL}/foods/cooking-methods`).then(r => r.json()),
+                        fetch(`${API_BASE_URL}/foods/spice-levels`).then(r => r.json())
+                    ]);
+
+                    setMetadata({
+                        foodClasses: classes,
+                        foodGroups: groups,
+                        regions: regions,
+                        cookingMethods: methods,
+                        spiceLevels: levels
+                    });
+                } catch (error) {
+                    console.error('Failed to load metadata:', error);
+                }
+            };
+
             const handleAutocomplete = useCallback(async (query) => {
                 if (query.length < 2) {
                     setAutocomplete([]);
@@ -502,11 +985,10 @@
                     setAutocomplete(suggestions);
                     setShowAutocomplete(true);
                 } catch (error) {
-                    console.error('Erreur autocomplétion:', error);
+                    console.error('Autocomplete error:', error);
                 }
             }, []);
 
-            // Recherche
             const handleSearch = async (page = 0) => {
                 setLoading(true);
                 try {
@@ -518,12 +1000,9 @@
                     });
 
                     if (searchQuery.trim()) searchParams.append('query', searchQuery);
-                    if (filters.foodClass) searchParams.append('foodClass', filters.foodClass);
-                    if (filters.foodGroup) searchParams.append('foodGroup', filters.foodGroup);
-                    if (filters.minCalories) searchParams.append('minCalories', filters.minCalories);
-                    if (filters.maxCalories) searchParams.append('maxCalories', filters.maxCalories);
-                    if (filters.minProtein) searchParams.append('minProtein', filters.minProtein);
-                    if (filters.maxProtein) searchParams.append('maxProtein', filters.maxProtein);
+                    Object.entries(filters).forEach(([key, value]) => {
+                        if (value) searchParams.append(key, value);
+                    });
 
                     const response = await fetch(`${API_BASE_URL}/foods/search?${searchParams}`);
                     const data = await response.json();
@@ -536,10 +1015,35 @@
                         size: data.size || 20
                     });
                 } catch (error) {
-                    console.error('Erreur de recherche:', error);
+                    console.error('Search error:', error);
                     setResults([]);
                 } finally {
                     setLoading(false);
+                }
+            };
+
+            const handleImageRecognition = async () => {
+                if (!selectedFile) return;
+
+                setRecognitionLoading(true);
+                try {
+                    const formData = new FormData();
+                    formData.append('image', selectedFile);
+                    formData.append('confidenceThreshold', '0.1');
+                    formData.append('maxResults', '5');
+
+                    const response = await fetch(`${API_BASE_URL}/foods/recognize`, {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    const data = await response.json();
+                    setRecognitionResults(data.results || []);
+                } catch (error) {
+                    console.error('Recognition error:', error);
+                    setRecognitionResults([]);
+                } finally {
+                    setRecognitionLoading(false);
                 }
             };
 
@@ -552,76 +1056,117 @@
                 setFilters({
                     foodClass: '',
                     foodGroup: '',
+                    region: '',
+                    cookingMethod: '',
+                    spiceLevel: '',
                     minCalories: '',
                     maxCalories: '',
                     minProtein: '',
                     maxProtein: ''
                 });
+                setSelectedFile(null);
+                setRecognitionResults([]);
+            };
+
+            const handleFoodClick = async (food) => {
+                try {
+                    const response = await fetch(`${API_BASE_URL}/foods/${encodeURIComponent(food.uri)}`);
+                    const detailedFood = await response.json();
+                    setSelectedFood(detailedFood);
+                    setShowModal(true);
+                } catch (error) {
+                    console.error('Error fetching food details:', error);
+                    setSelectedFood(food);
+                    setShowModal(true);
+                }
             };
 
             return (
-    <div className="app-container">
-        <Header activeTab={activeTab} setActiveTab={setActiveTab} />
-        
-        <main className="main-content">
-            {activeTab === 'search' && (
-                <>
-                    <SearchSection
-                        searchQuery={searchQuery}
-                        setSearchQuery={setSearchQuery}
-                        filters={filters}
-                        updateFilter={updateFilter}
-                        resetFilters={resetFilters}
-                        handleSearch={handleSearch}
-                        loading={loading}
-                        foodClasses={foodClasses}
-                        foodGroups={foodGroups}
-                        autocomplete={autocomplete}
-                        showAutocomplete={showAutocomplete}
-                        setShowAutocomplete={setShowAutocomplete}
-                        handleAutocomplete={handleAutocomplete}
-                    />
+                <div className="app-container">
+                    <Header activeTab={activeTab} setActiveTab={setActiveTab} />
                     
-                    <ResultsSection
-                        results={results}
-                        loading={loading}
-                        pagination={pagination}
-                        handleSearch={handleSearch}
-                        sortBy={sortBy}
-                        setSortBy={setSortBy}
-                        sortDirection={sortDirection}
-                        setSortDirection={setSortDirection}
-                    />
-                </>
-            )}
-            
-            {activeTab === 'admin' && <AdminSection />}
-        </main>
-    </div>
-);
+                    <main className="main-content">
+                        {activeTab === 'discover' && (
+                            <DiscoverySection
+                                searchMode={searchMode}
+                                setSearchMode={setSearchMode}
+                                searchQuery={searchQuery}
+                                setSearchQuery={setSearchQuery}
+                                selectedFile={selectedFile}
+                                setSelectedFile={setSelectedFile}
+                                filters={filters}
+                                updateFilter={updateFilter}
+                                resetFilters={resetFilters}
+                                handleSearch={handleSearch}
+                                handleImageRecognition={handleImageRecognition}
+                                loading={loading}
+                                recognitionLoading={recognitionLoading}
+                                metadata={metadata}
+                                autocomplete={autocomplete}
+                                showAutocomplete={showAutocomplete}
+                                setShowAutocomplete={setShowAutocomplete}
+                                handleAutocomplete={handleAutocomplete}
+                                results={results}
+                                recognitionResults={recognitionResults}
+                                pagination={pagination}
+                                handleFoodClick={handleFoodClick}
+                                sortBy={sortBy}
+                                setSortBy={setSortBy}
+                                sortDirection={sortDirection}
+                                setSortDirection={setSortDirection}
+                            />
+                        )}
+                        
+                        {activeTab === 'analytics' && <AnalyticsSection />}
+                        {activeTab === 'system' && <SystemSection />}
+                    </main>
+
+                    {showModal && selectedFood && (
+                        <FoodDetailModal
+                            food={selectedFood}
+                            onClose={() => setShowModal(false)}
+                        />
+                    )}
+                </div>
+            );
         }
 
-        // Composant Header
+        // Header Component
         function Header({ activeTab, setActiveTab }) {
             return (
                 <header className="header">
                     <div className="header-content">
-                        <div className="logo">
-                            <i className="fas fa-utensils"></i>
-                            <span>Food Knowledge Graph by Spring_Shogün 🍃</span>
+                        <div className="brand">
+                            <div className="brand-icon">
+                                <i className="fas fa-brain"></i>
+                            </div>
+                            <div className="brand-text">
+                                <div className="brand-title">NutriGraph</div>
+                                <div className="brand-subtitle">Advanced Food Intelligence Platform</div>
+                            </div>
                         </div>
+                        
                         <nav className="nav-tabs">
                             <button 
-                                className={`nav-tab ${activeTab === 'search' ? 'active' : ''}`}
-                                onClick={() => setActiveTab('search')}
+                                className={`nav-tab ${activeTab === 'discover' ? 'active' : ''}`}
+                                onClick={() => setActiveTab('discover')}
                             >
-                                <i className="fas fa-search"></i> Recherche
+                                <i className="fas fa-search"></i>
+                                Discover
                             </button>
                             <button 
-                                className={`nav-tab ${activeTab === 'admin' ? 'active' : ''}`}
-                                onClick={() => setActiveTab('admin')}
+                                className={`nav-tab ${activeTab === 'analytics' ? 'active' : ''}`}
+                                onClick={() => setActiveTab('analytics')}
                             >
-                                <i className="fas fa-cog"></i> Administration
+                                <i className="fas fa-chart-line"></i>
+                                Analytics
+                            </button>
+                            <button 
+                                className={`nav-tab ${activeTab === 'system' ? 'active' : ''}`}
+                                onClick={() => setActiveTab('system')}
+                            >
+                                <i className="fas fa-cogs"></i>
+                                System
                             </button>
                         </nav>
                     </div>
@@ -629,28 +1174,170 @@
             );
         }
 
-        // Composant de recherche
-        function SearchSection({ 
-            searchQuery, setSearchQuery, filters, updateFilter, resetFilters, 
-            handleSearch, loading, foodClasses, foodGroups, autocomplete, 
-            showAutocomplete, setShowAutocomplete, handleAutocomplete 
+        // Discovery Section Component
+        function DiscoverySection({
+            searchMode, setSearchMode, searchQuery, setSearchQuery, selectedFile, setSelectedFile,
+            filters, updateFilter, resetFilters, handleSearch, handleImageRecognition,
+            loading, recognitionLoading, metadata, autocomplete, showAutocomplete, 
+            setShowAutocomplete, handleAutocomplete, results, recognitionResults, 
+            pagination, handleFoodClick, sortBy, setSortBy, sortDirection, setSortDirection
         }) {
+            const fileInputRef = useRef(null);
+
+            const handleFileSelect = (event) => {
+                const file = event.target.files[0];
+                if (file) {
+                    setSelectedFile(file);
+                }
+            };
+
+            const handleDrop = (event) => {
+                event.preventDefault();
+                const file = event.dataTransfer.files[0];
+                if (file && file.type.startsWith('image/')) {
+                    setSelectedFile(file);
+                }
+            };
+
+            const handleDragOver = (event) => {
+                event.preventDefault();
+            };
+
             return (
-                <div className="search-section">
-                    <div className="search-header">
-                        <h1 className="search-title">Explorez les Aliments</h1>
-                        <p className="search-subtitle">
-                            Découvrez les propriétés nutritionnelles et les informations détaillées des aliments
-                        </p>
+                <>
+                    <div className="glass-card search-section">
+                        <div className="section-header">
+                            <h1 className="section-title">Intelligent Food Discovery</h1>
+                            <p className="section-subtitle">
+                                Explore nutritional insights, cultural contexts, and culinary knowledge through advanced semantic search and AI-powered image recognition
+                            </p>
+                        </div>
+
+                        <div className="search-tabs">
+                            <div 
+                                className={`search-tab ${searchMode === 'text' ? 'active' : ''}`}
+                                onClick={() => setSearchMode('text')}
+                            >
+                                <i className="fas fa-keyboard search-tab-icon"></i>
+                                <div className="search-tab-title">Text Search</div>
+                                <div className="search-tab-desc">Search by name, ingredients, or properties</div>
+                            </div>
+                            
+                            <div 
+                                className={`search-tab ${searchMode === 'image' ? 'active' : ''}`}
+                                onClick={() => setSearchMode('image')}
+                            >
+                                <i className="fas fa-camera search-tab-icon"></i>
+                                <div className="search-tab-title">Image Recognition</div>
+                                <div className="search-tab-desc">Upload photos for AI identification</div>
+                            </div>
+                            
+                            <div 
+                                className={`search-tab ${searchMode === 'cultural' ? 'active' : ''}`}
+                                onClick={() => setSearchMode('cultural')}
+                            >
+                                <i className="fas fa-globe-africa search-tab-icon"></i>
+                                <div className="search-tab-title">Cultural Explorer</div>
+                                <div className="search-tab-desc">Discover regional and traditional cuisines</div>
+                            </div>
+                            
+                            <div 
+                                className={`search-tab ${searchMode === 'nutrition' ? 'active' : ''}`}
+                                onClick={() => setSearchMode('nutrition')}
+                            >
+                                <i className="fas fa-heartbeat search-tab-icon"></i>
+                                <div className="search-tab-title">Nutrition Focus</div>
+                                <div className="search-tab-desc">Filter by nutritional requirements</div>
+                            </div>
+                        </div>
+
+                        {searchMode === 'text' && (
+                            <TextSearchForm 
+                                searchQuery={searchQuery}
+                                setSearchQuery={setSearchQuery}
+                                autocomplete={autocomplete}
+                                showAutocomplete={showAutocomplete}
+                                setShowAutocomplete={setShowAutocomplete}
+                                handleAutocomplete={handleAutocomplete}
+                                handleSearch={handleSearch}
+                                loading={loading}
+                                resetFilters={resetFilters}
+                            />
+                        )}
+
+                        {searchMode === 'image' && (
+                            <ImageSearchForm
+                                selectedFile={selectedFile}
+                                setSelectedFile={setSelectedFile}
+                                fileInputRef={fileInputRef}
+                                handleFileSelect={handleFileSelect}
+                                handleDrop={handleDrop}
+                                handleDragOver={handleDragOver}
+                                handleImageRecognition={handleImageRecognition}
+                                recognitionLoading={recognitionLoading}
+                                resetFilters={resetFilters}
+                            />
+                        )}
+
+                        {searchMode === 'cultural' && (
+                            <CulturalSearchForm
+                                filters={filters}
+                                updateFilter={updateFilter}
+                                metadata={metadata}
+                                handleSearch={handleSearch}
+                                loading={loading}
+                                resetFilters={resetFilters}
+                            />
+                        )}
+
+                        {searchMode === 'nutrition' && (
+                            <NutritionSearchForm
+                                filters={filters}
+                                updateFilter={updateFilter}
+                                metadata={metadata}
+                                handleSearch={handleSearch}
+                                loading={loading}
+                                resetFilters={resetFilters}
+                            />
+                        )}
                     </div>
 
-                    <div className="search-form">
-                        <div className="search-input-group">
-                            <i className="fas fa-search search-icon"></i>
+                    {recognitionResults.length > 0 && (
+                        <RecognitionResults results={recognitionResults} onFoodClick={handleFoodClick} />
+                    )}
+
+                    {(results.length > 0 || loading) && (
+                        <ResultsSection
+                            results={results}
+                            loading={loading}
+                            pagination={pagination}
+                            handleSearch={handleSearch}
+                            sortBy={sortBy}
+                            setSortBy={setSortBy}
+                            sortDirection={sortDirection}
+                            setSortDirection={setSortDirection}
+                            onFoodClick={handleFoodClick}
+                        />
+                    )}
+                </>
+            );
+        }
+
+        // Text Search Form Component
+        function TextSearchForm({ 
+            searchQuery, setSearchQuery, autocomplete, showAutocomplete, 
+            setShowAutocomplete, handleAutocomplete, handleSearch, loading, resetFilters 
+        }) {
+            return (
+                <div className="form-grid">
+                    <div className="input-group">
+                        <label className="input-label">Search Foods</label>
+                        <div style={{ position: 'relative' }}>
+                            <i className="fas fa-search input-icon"></i>
                             <input
                                 type="text"
-                                className="search-input"
-                                placeholder="Rechercher un aliment (ex: pomme, fromage, pain...)"
+                                className="form-input"
+                                placeholder="Enter food name, ingredient, or description..."
                                 value={searchQuery}
                                 onChange={(e) => {
                                     setSearchQuery(e.target.value);
@@ -658,6 +1345,7 @@
                                 }}
                                 onFocus={() => setShowAutocomplete(true)}
                                 onBlur={() => setTimeout(() => setShowAutocomplete(false), 200)}
+                                onKeyPress={(e) => e.key === 'Enter' && handleSearch(0)}
                             />
                             {showAutocomplete && autocomplete.length > 0 && (
                                 <div className="autocomplete-dropdown">
@@ -676,276 +1364,517 @@
                                 </div>
                             )}
                         </div>
+                    </div>
 
-                        <div className="filters-grid">
-                            <div className="filter-group">
-                                <label className="filter-label">Classe d'aliment</label>
-                                <select
-                                    className="filter-select"
-                                    value={filters.foodClass}
-                                    onChange={(e) => updateFilter('foodClass', e.target.value)}
-                                >
-                                    <option value="">Toutes les classes</option>
-                                    {foodClasses.map(cls => (
-                                        <option key={cls} value={cls}>{cls}</option>
-                                    ))}
-                                </select>
-                            </div>
-
-                            <div className="filter-group">
-                                <label className="filter-label">Groupe alimentaire</label>
-                                <select
-                                    className="filter-select"
-                                    value={filters.foodGroup}
-                                    onChange={(e) => updateFilter('foodGroup', e.target.value)}
-                                >
-                                    <option value="">Tous les groupes</option>
-                                    {foodGroups.map(group => (
-                                        <option key={group} value={group}>{group}</option>
-                                    ))}
-                                </select>
-                            </div>
-
-                            <div className="filter-group">
-                                <label className="filter-label">Calories (kcal/100g)</label>
-                                <div className="range-inputs">
-                                    <input
-                                        type="number"
-                                        className="filter-input"
-                                        placeholder="Min"
-                                        value={filters.minCalories}
-                                        onChange={(e) => updateFilter('minCalories', e.target.value)}
-                                    />
-                                    <input
-                                        type="number"
-                                        className="filter-input"
-                                        placeholder="Max"
-                                        value={filters.maxCalories}
-                                        onChange={(e) => updateFilter('maxCalories', e.target.value)}
-                                    />
-                                </div>
-                            </div>
-
-                            <div className="filter-group">
-                                <label className="filter-label">Protéines (g/100g)</label>
-                                <div className="range-inputs">
-                                    <input
-                                        type="number"
-                                        className="filter-input"
-                                        placeholder="Min"
-                                        value={filters.minProtein}
-                                        onChange={(e) => updateFilter('minProtein', e.target.value)}
-                                    />
-                                    <input
-                                        type="number"
-                                        className="filter-input"
-                                        placeholder="Max"
-                                        value={filters.maxProtein}
-                                        onChange={(e) => updateFilter('maxProtein', e.target.value)}
-                                    />
-                                </div>
-                            </div>
-                        </div>
-
-                        <div style={{ display: 'flex', gap: '1rem' }}>
-                            <button
-                                className="search-button"
-                                onClick={() => handleSearch(0)}
-                                disabled={loading}
-                                style={{ flex: 1 }}
-                            >
-                                {loading ? (
-                                    <>
-                                        <i className="fas fa-spinner fa-spin"></i>
-                                        Recherche en cours...
-                                    </>
-                                ) : (
-                                    <>
-                                        <i className="fas fa-search"></i>
-                                        Rechercher
-                                    </>
-                                )}
-                            </button>
-                            
-                            <button
-                                className="search-button"
-                                onClick={resetFilters}
-                                style={{ 
-                                    flex: 'none',
-                                    background: 'linear-gradient(135deg, #e53e3e 0%, #c53030 100%)'
-                                }}
-                            >
-                                <i className="fas fa-refresh"></i>
-                                Réinitialiser
-                            </button>
-                        </div>
+                    <div style={{ display: 'flex', gap: 'var(--spacing-md)', marginTop: 'var(--spacing-md)' }}>
+                        <button
+                            className="btn btn-primary"
+                            onClick={() => handleSearch(0)}
+                            disabled={loading}
+                            style={{ flex: 1 }}
+                        >
+                            {loading ? (
+                                <>
+                                    <i className="fas fa-spinner fa-spin"></i>
+                                    Searching...
+                                </>
+                            ) : (
+                                <>
+                                    <i className="fas fa-search"></i>
+                                    Search Database
+                                </>
+                            )}
+                        </button>
+                        
+                        <button
+                            className="btn btn-outline"
+                            onClick={resetFilters}
+                        >
+                            <i className="fas fa-refresh"></i>
+                            Reset
+                        </button>
                     </div>
                 </div>
             );
         }
 
-        // Composant des résultats
+        // Image Search Form Component
+        function ImageSearchForm({
+            selectedFile, setSelectedFile, fileInputRef, handleFileSelect, 
+            handleDrop, handleDragOver, handleImageRecognition, recognitionLoading, resetFilters
+        }) {
+            return (
+                <div className="form-grid">
+                    <div className="input-group">
+                        <label className="input-label">Upload Food Image</label>
+                        <div
+                            className={`file-upload ${selectedFile ? 'active' : ''}`}
+                            onDrop={handleDrop}
+                            onDragOver={handleDragOver}
+                            onClick={() => fileInputRef.current?.click()}
+                        >
+                            <input
+                                ref={fileInputRef}
+                                type="file"
+                                accept="image/*"
+                                onChange={handleFileSelect}
+                                style={{ display: 'none' }}
+                            />
+                            
+                            {selectedFile ? (
+                                <>
+                                    <i className="fas fa-check-circle file-upload-icon" style={{ color: '#48bb78' }}></i>
+                                    <div className="file-upload-text">{selectedFile.name}</div>
+                                    <div className="file-upload-hint">File ready for analysis</div>
+                                </>
+                            ) : (
+                                <>
+                                    <i className="fas fa-cloud-upload-alt file-upload-icon"></i>
+                                    <div className="file-upload-text">Drop your image here or click to browse</div>
+                                    <div className="file-upload-hint">Supports JPG, PNG, GIF up to 10MB</div>
+                                </>
+                            )}
+                        </div>
+                    </div>
+
+                    <div style={{ display: 'flex', gap: 'var(--spacing-md)', marginTop: 'var(--spacing-md)' }}>
+                        <button
+                            className="btn btn-success"
+                            onClick={handleImageRecognition}
+                            disabled={!selectedFile || recognitionLoading}
+                            style={{ flex: 1 }}
+                        >
+                            {recognitionLoading ? (
+                                <>
+                                    <i className="fas fa-spinner fa-spin"></i>
+                                    Analyzing Image...
+                                </>
+                            ) : (
+                                <>
+                                    <i className="fas fa-magic"></i>
+                                    Identify Food
+                                </>
+                            )}
+                        </button>
+                        
+                        <button
+                            className="btn btn-outline"
+                            onClick={() => {
+                                setSelectedFile(null);
+                                resetFilters();
+                            }}
+                        >
+                            <i className="fas fa-times"></i>
+                            Clear
+                        </button>
+                    </div>
+                </div>
+            );
+        }
+
+        // Cultural Search Form Component
+        function CulturalSearchForm({ filters, updateFilter, metadata, handleSearch, loading, resetFilters }) {
+            return (
+                <div className="form-grid">
+                    <div className="filters-grid">
+                        <div className="input-group">
+                            <label className="input-label">Region</label>
+                            <select
+                                className="form-input"
+                                value={filters.region}
+                                onChange={(e) => updateFilter('region', e.target.value)}
+                                style={{ paddingLeft: 'var(--spacing-md)' }}
+                            >
+                                <option value="">All Regions</option>
+                                {metadata.regions.map(region => (
+                                    <option key={region} value={region}>{region.replace(/_/g, ' ')}</option>
+                                ))}
+                            </select>
+                        </div>
+
+                        <div className="input-group">
+                            <label className="input-label">Cooking Method</label>
+                            <select
+                                className="form-input"
+                                value={filters.cookingMethod}
+                                onChange={(e) => updateFilter('cookingMethod', e.target.value)}
+                                style={{ paddingLeft: 'var(--spacing-md)' }}
+                            >
+                                <option value="">All Methods</option>
+                                {metadata.cookingMethods.map(method => (
+                                    <option key={method} value={method}>{method}</option>
+                                ))}
+                            </select>
+                        </div>
+
+                        <div className="input-group">
+                            <label className="input-label">Spice Level</label>
+                            <select
+                                className="form-input"
+                                value={filters.spiceLevel}
+                                onChange={(e) => updateFilter('spiceLevel', e.target.value)}
+                                style={{ paddingLeft: 'var(--spacing-md)' }}
+                            >
+                                <option value="">All Levels</option>
+                                {metadata.spiceLevels.map(level => (
+                                    <option key={level} value={level}>{level}</option>
+                                ))}
+                            </select>
+                        </div>
+                    </div>
+
+                    <div style={{ display: 'flex', gap: 'var(--spacing-md)', marginTop: 'var(--spacing-md)' }}>
+                        <button
+                            className="btn btn-primary"
+                            onClick={() => handleSearch(0)}
+                            disabled={loading}
+                            style={{ flex: 1 }}
+                        >
+                            {loading ? (
+                                <>
+                                    <i className="fas fa-spinner fa-spin"></i>
+                                    Exploring...
+                                </>
+                            ) : (
+                                <>
+                                    <i className="fas fa-globe-africa"></i>
+                                    Explore Cuisine
+                                </>
+                            )}
+                        </button>
+                        
+                        <button
+                            className="btn btn-outline"
+                            onClick={resetFilters}
+                        >
+                            <i className="fas fa-refresh"></i>
+                            Reset
+                        </button>
+                    </div>
+                </div>
+            );
+        }
+
+        // Nutrition Search Form Component
+        function NutritionSearchForm({ filters, updateFilter, metadata, handleSearch, loading, resetFilters }) {
+            return (
+                <div className="form-grid">
+                    <div className="filters-grid">
+                        <div className="input-group">
+                            <label className="input-label">Food Category</label>
+                            <select
+                                className="form-input"
+                                value={filters.foodClass}
+                                onChange={(e) => updateFilter('foodClass', e.target.value)}
+                                style={{ paddingLeft: 'var(--spacing-md)' }}
+                            >
+                                <option value="">All Categories</option>
+                                {metadata.foodClasses.map(cls => (
+                                    <option key={cls} value={cls}>{cls}</option>
+                                ))}
+                            </select>
+                        </div>
+
+                        <div className="input-group">
+                            <label className="input-label">Food Group</label>
+                            <select
+                                className="form-input"
+                                value={filters.foodGroup}
+                                onChange={(e) => updateFilter('foodGroup', e.target.value)}
+                                style={{ paddingLeft: 'var(--spacing-md)' }}
+                            >
+                                <option value="">All Groups</option>
+                                {metadata.foodGroups.map(group => (
+                                    <option key={group} value={group}>{group}</option>
+                                ))}
+                            </select>
+                        </div>
+
+                        <div className="input-group">
+                            <label className="input-label">Calories (per 100g)</label>
+                            <div className="range-inputs">
+                                <input
+                                    type="number"
+                                    className="form-input"
+                                    placeholder="Min"
+                                    value={filters.minCalories}
+                                    onChange={(e) => updateFilter('minCalories', e.target.value)}
+                                    style={{ paddingLeft: 'var(--spacing-md)' }}
+                                />
+                                <input
+                                    type="number"
+                                    className="form-input"
+                                    placeholder="Max"
+                                    value={filters.maxCalories}
+                                    onChange={(e) => updateFilter('maxCalories', e.target.value)}
+                                    style={{ paddingLeft: 'var(--spacing-md)' }}
+                                />
+                            </div>
+                        </div>
+
+                        <div className="input-group">
+                            <label className="input-label">Protein (g per 100g)</label>
+                            <div className="range-inputs">
+                                <input
+                                    type="number"
+                                    className="form-input"
+                                    placeholder="Min"
+                                    value={filters.minProtein}
+                                    onChange={(e) => updateFilter('minProtein', e.target.value)}
+                                    style={{ paddingLeft: 'var(--spacing-md)' }}
+                                />
+                                <input
+                                    type="number"
+                                    className="form-input"
+                                    placeholder="Max"
+                                    value={filters.maxProtein}
+                                    onChange={(e) => updateFilter('maxProtein', e.target.value)}
+                                    style={{ paddingLeft: 'var(--spacing-md)' }}
+                                />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style={{ display: 'flex', gap: 'var(--spacing-md)', marginTop: 'var(--spacing-md)' }}>
+                        <button
+                            className="btn btn-primary"
+                            onClick={() => handleSearch(0)}
+                            disabled={loading}
+                            style={{ flex: 1 }}
+                        >
+                            {loading ? (
+                                <>
+                                    <i className="fas fa-spinner fa-spin"></i>
+                                    Analyzing...
+                                </>
+                            ) : (
+                                <>
+                                    <i className="fas fa-heartbeat"></i>
+                                    Find Nutrition Match
+                                </>
+                            )}
+                        </button>
+                        
+                        <button
+                            className="btn btn-outline"
+                            onClick={resetFilters}
+                        >
+                            <i className="fas fa-refresh"></i>
+                            Reset
+                        </button>
+                    </div>
+                </div>
+            );
+        }
+
+        // Recognition Results Component
+        function RecognitionResults({ results, onFoodClick }) {
+            return (
+                <div className="glass-card recognition-results fade-in">
+                    <div className="section-header">
+                        <h2 className="section-title" style={{ fontSize: '2rem' }}>Recognition Results</h2>
+                        <p className="section-subtitle">AI-powered food identification results</p>
+                    </div>
+
+                    <div style={{ display: 'grid', gap: 'var(--spacing-md)' }}>
+                        {results.map((result, index) => (
+                            <div key={index} className="recognition-card slide-up" style={{ animationDelay: `${index * 0.1}s` }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--spacing-sm)' }}>
+                                    <h3 style={{ margin: 0, color: 'var(--text-primary)' }}>{result.predictedName}</h3>
+                                    <span style={{ 
+                                        background: 'var(--success-gradient)',
+                                        color: 'white',
+                                        padding: '0.25rem 0.75rem',
+                                        borderRadius: '20px',
+                                        fontSize: '0.8rem',
+                                        fontWeight: '600'
+                                    }}>
+                                        {(result.confidence * 100).toFixed(1)}% confidence
+                                    </span>
+                                </div>
+                                
+                                <div className="confidence-bar">
+                                    <div 
+                                        className="confidence-fill" 
+                                        style={{ width: `${result.confidence * 100}%` }}
+                                    ></div>
+                                </div>
+
+                                {result.ingredients && result.ingredients.length > 0 && (
+                                    <div style={{ marginTop: 'var(--spacing-sm)' }}>
+                                        <strong>Typical ingredients: </strong>
+                                        <span style={{ color: 'var(--text-secondary)' }}>
+                                            {result.ingredients.join(', ')}
+                                        </span>
+                                    </div>
+                                )}
+
+                                {result.foodDetails && (
+                                    <button
+                                        className="btn btn-outline"
+                                        onClick={() => onFoodClick(result.foodDetails)}
+                                        style={{ marginTop: 'var(--spacing-sm)' }}
+                                    >
+                                        <i className="fas fa-info-circle"></i>
+                                        View Details
+                                    </button>
+                                )}
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            );
+        }
+
+        // Results Section Component
         function ResultsSection({ 
-            results, loading, pagination, handleSearch, 
-            sortBy, setSortBy, sortDirection, setSortDirection 
+            results, loading, pagination, handleSearch, sortBy, setSortBy, 
+            sortDirection, setSortDirection, onFoodClick 
         }) {
             if (loading) {
                 return (
-                    <div className="results-section">
+                    <div className="glass-card">
                         <div className="loading">
-                            <i className="fas fa-spinner"></i>
-                            <p>Recherche en cours...</p>
+                            <div className="loading-spinner"></div>
+                            <h3>Searching database...</h3>
+                            <p>Analyzing nutritional data and cultural context</p>
                         </div>
                     </div>
                 );
             }
 
-            if (!results.length && !loading) {
+            if (!results.length) {
                 return (
-                    <div className="results-section">
+                    <div className="glass-card">
                         <div className="empty-state">
-                            <i className="fas fa-utensils"></i>
-                            <h3>Aucun aliment trouvé</h3>
-                            <p>Essayez de modifier vos critères de recherche</p>
+                            <i className="fas fa-search-minus empty-state-icon"></i>
+                            <h3>No results found</h3>
+                            <p>Try adjusting your search criteria or explore different categories</p>
                         </div>
                     </div>
                 );
             }
 
             return (
-                <div className="results-section">
+                <div className="glass-card results-section fade-in">
                     <div className="results-header">
                         <div className="results-count">
-                            {pagination.totalElements} aliment{pagination.totalElements > 1 ? 's' : ''} trouvé{pagination.totalElements > 1 ? 's' : ''}
+                            <strong>{pagination.totalElements.toLocaleString()}</strong> food items discovered
                         </div>
                         
-                        <div className="sort-controls">
+                        <div style={{ display: 'flex', gap: 'var(--spacing-sm)', alignItems: 'center' }}>
                             <select
                                 value={sortBy}
                                 onChange={(e) => setSortBy(e.target.value)}
-                                className="filter-select"
+                                className="form-input"
+                                style={{ 
+                                    paddingLeft: 'var(--spacing-md)',
+                                    minWidth: '150px',
+                                    fontSize: '0.9rem'
+                                }}
                             >
-                                <option value="name">Nom</option>
+                                <option value="name">Name</option>
                                 <option value="calories">Calories</option>
-                                <option value="protein">Protéines</option>
+                                <option value="protein">Protein</option>
                             </select>
                             
                             <button
-                                className="pagination-button"
+                                className="btn btn-outline"
                                 onClick={() => setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc')}
+                                style={{ padding: '0.75rem' }}
                             >
                                 <i className={`fas fa-sort-${sortDirection === 'asc' ? 'up' : 'down'}`}></i>
                             </button>
                         </div>
                     </div>
 
-                    <div className="food-grid">
+                    <div className="results-grid">
                         {results.map((food, index) => (
-                            <FoodCard key={food.uri || index} food={food} />
+                            <FoodCard 
+                                key={food.uri || index} 
+                                food={food} 
+                                onClick={() => onFoodClick(food)}
+                                index={index}
+                            />
                         ))}
                     </div>
 
                     {pagination.totalPages > 1 && (
-                        <Pagination 
-                            pagination={pagination} 
-                            handleSearch={handleSearch} 
-                        />
+                        <Pagination pagination={pagination} onPageChange={handleSearch} />
                     )}
                 </div>
             );
         }
 
-        // Composant carte d'aliment
-        function FoodCard({ food }) {
-            // Replace the getImageUrl function in your frontend with this:
+        // Food Card Component
+        function FoodCard({ food, onClick, index }) {
             const getImageUrl = () => {
                 if (food.images && food.images.length > 0) {
                     let imagePath = food.images[0].imagePath;
-                    
-                    console.log("=== FRONTEND DEBUG ===");
-                    console.log("Food name:", food.name);
-                    console.log("Original path from DB:", imagePath);
-                    
-                    // Handle different path formats
                     let cleanPath = imagePath;
                     
-                    // If path starts with 'images/', remove it
                     if (cleanPath.startsWith('images/')) {
                         cleanPath = cleanPath.substring(7);
                     }
                     
-                    // Remove leading slash if present
                     if (cleanPath.startsWith('/')) {
                         cleanPath = cleanPath.substring(1);
                     }
                     
-                    // At this point, cleanPath should be "category/filename.jpg"
-                    // If it doesn't contain a slash, we need to add the category
                     if (!cleanPath.includes('/')) {
-                        // Derive category from food name or class
                         const category = food.name ? food.name.replace(/\s+/g, '_').toLowerCase() : 'unknown';
                         cleanPath = `${category}/${cleanPath}`;
                     }
                     
-                    const finalUrl = `${API_BASE_URL}/images/${cleanPath}`;
-                    console.log("Clean path:", cleanPath);
-                    console.log("Final URL:", finalUrl);
-                    console.log("======================");
-                    
-                    return finalUrl;
+                    return `${API_BASE_URL}/images/${cleanPath}`;
                 }
                 return null;
             };
 
             return (
-                <div className="food-card">
+                <div 
+                    className="food-card slide-up" 
+                    onClick={onClick}
+                    style={{ animationDelay: `${index * 0.1}s` }}
+                >
                     <div className="food-image">
                         {getImageUrl() ? (
                             <img 
-    src={getImageUrl()} 
-    alt={food.name}
-    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-    onLoad={() => {
-        console.log("✅ Image loaded successfully:", food.name, getImageUrl());
-    }}
-    onError={(e) => {
-        console.error("❌ Image failed to load:", food.name, getImageUrl());
-        console.error("Error details:", e);
-        // Essayer de fetch l'image pour voir l'erreur HTTP
-        fetch(getImageUrl())
-            .then(response => {
-                console.log("Fetch response status:", response.status);
-                console.log("Fetch response headers:", Object.fromEntries(response.headers.entries()));
-            })
-            .catch(err => console.error("Fetch error:", err));
-        
-        e.target.style.display = 'none';
-        e.target.parentElement.innerHTML = '<i class="fas fa-utensils"></i>';
-    }}
-/>
+                                src={getImageUrl()} 
+                                alt={food.name}
+                                onError={(e) => {
+                                    e.target.style.display = 'none';
+                                    e.target.parentElement.innerHTML = '<i class="fas fa-utensils"></i>';
+                                }}
+                            />
                         ) : (
                             <i className="fas fa-utensils"></i>
                         )}
                     </div>
                     
-                    <div className="food-card-content">
+                    <div className="food-content">
                         <h3 className="food-name">{food.name}</h3>
                         
                         {food.classLabel && (
-                            <span className="food-class">{food.classLabel}</span>
+                            <span className="food-category">{food.classLabel}</span>
+                        )}
+                        
+                        {food.region && (
+                            <div style={{ 
+                                display: 'flex', 
+                                alignItems: 'center', 
+                                gap: 'var(--spacing-xs)', 
+                                marginBottom: 'var(--spacing-sm)',
+                                fontSize: '0.9rem',
+                                color: 'var(--text-secondary)'
+                            }}>
+                                <i className="fas fa-map-marker-alt"></i>
+                                <span>{food.region.replace(/_/g, ' ')}</span>
+                            </div>
                         )}
                         
                         {food.description && (
-                            <p style={{ 
-                                color: '#718096', 
-                                fontSize: '0.9rem', 
-                                lineHeight: '1.4',
-                                marginBottom: '1rem',
-                                maxHeight: '3em',
-                                overflow: 'hidden'
-                            }}>
-                                {food.description}
-                            </p>
+                            <p className="food-description">{food.description}</p>
                         )}
 
                         <div className="nutrition-grid">
@@ -959,33 +1888,33 @@
                             {food.protein !== undefined && (
                                 <div className="nutrition-item">
                                     <div className="nutrition-value">{food.protein?.toFixed(1)}g</div>
-                                    <div className="nutrition-label">Protéines</div>
+                                    <div className="nutrition-label">Protein</div>
                                 </div>
                             )}
                             
                             {food.carbohydrates !== undefined && (
                                 <div className="nutrition-item">
                                     <div className="nutrition-value">{food.carbohydrates?.toFixed(1)}g</div>
-                                    <div className="nutrition-label">Glucides</div>
+                                    <div className="nutrition-label">Carbs</div>
                                 </div>
                             )}
                             
                             {food.fat !== undefined && (
                                 <div className="nutrition-item">
                                     <div className="nutrition-value">{food.fat?.toFixed(1)}g</div>
-                                    <div className="nutrition-label">Lipides</div>
+                                    <div className="nutrition-label">Fat</div>
                                 </div>
                             )}
                         </div>
 
                         {food.searchScore && (
                             <div style={{ 
-                                marginTop: '1rem', 
+                                marginTop: 'var(--spacing-sm)', 
                                 fontSize: '0.8rem', 
-                                color: '#a0aec0',
+                                color: 'var(--text-secondary)',
                                 textAlign: 'right'
                             }}>
-                                Score: {(food.searchScore * 100).toFixed(0)}%
+                                Relevance: {(food.searchScore * 100).toFixed(0)}%
                             </div>
                         )}
                     </div>
@@ -993,18 +1922,17 @@
             );
         }
 
-        // Composant pagination
-        function Pagination({ pagination, handleSearch }) {
+        // Pagination Component
+        function Pagination({ pagination, onPageChange }) {
             const getPageNumbers = () => {
                 const pages = [];
                 const { currentPage, totalPages } = pagination;
                 
-                // Afficher au maximum 7 pages
-                let startPage = Math.max(0, currentPage - 3);
-                let endPage = Math.min(totalPages - 1, startPage + 6);
+                let startPage = Math.max(0, currentPage - 2);
+                let endPage = Math.min(totalPages - 1, startPage + 4);
                 
-                if (endPage - startPage < 6) {
-                    startPage = Math.max(0, endPage - 6);
+                if (endPage - startPage < 4) {
+                    startPage = Math.max(0, endPage - 4);
                 }
                 
                 for (let i = startPage; i <= endPage; i++) {
@@ -1015,19 +1943,28 @@
             };
 
             return (
-                <div className="pagination">
+                <div style={{ 
+                    display: 'flex', 
+                    justifyContent: 'center', 
+                    alignItems: 'center', 
+                    gap: 'var(--spacing-sm)', 
+                    marginTop: 'var(--spacing-xl)',
+                    flexWrap: 'wrap'
+                }}>
                     <button
-                        className="pagination-button"
-                        onClick={() => handleSearch(0)}
+                        className="btn btn-outline"
+                        onClick={() => onPageChange(0)}
                         disabled={pagination.currentPage === 0}
+                        style={{ padding: '0.5rem 0.75rem' }}
                     >
                         <i className="fas fa-angle-double-left"></i>
                     </button>
                     
                     <button
-                        className="pagination-button"
-                        onClick={() => handleSearch(pagination.currentPage - 1)}
+                        className="btn btn-outline"
+                        onClick={() => onPageChange(pagination.currentPage - 1)}
                         disabled={pagination.currentPage === 0}
+                        style={{ padding: '0.5rem 0.75rem' }}
                     >
                         <i className="fas fa-angle-left"></i>
                     </button>
@@ -1035,25 +1972,28 @@
                     {getPageNumbers().map(pageNum => (
                         <button
                             key={pageNum}
-                            className={`pagination-button ${pageNum === pagination.currentPage ? 'active' : ''}`}
-                            onClick={() => handleSearch(pageNum)}
+                            className={`btn ${pageNum === pagination.currentPage ? 'btn-primary' : 'btn-outline'}`}
+                            onClick={() => onPageChange(pageNum)}
+                            style={{ padding: '0.5rem 0.75rem', minWidth: '40px' }}
                         >
                             {pageNum + 1}
                         </button>
                     ))}
 
                     <button
-                        className="pagination-button"
-                        onClick={() => handleSearch(pagination.currentPage + 1)}
+                        className="btn btn-outline"
+                        onClick={() => onPageChange(pagination.currentPage + 1)}
                         disabled={pagination.currentPage >= pagination.totalPages - 1}
+                        style={{ padding: '0.5rem 0.75rem' }}
                     >
                         <i className="fas fa-angle-right"></i>
                     </button>
                     
                     <button
-                        className="pagination-button"
-                        onClick={() => handleSearch(pagination.totalPages - 1)}
+                        className="btn btn-outline"
+                        onClick={() => onPageChange(pagination.totalPages - 1)}
                         disabled={pagination.currentPage >= pagination.totalPages - 1}
+                        style={{ padding: '0.5rem 0.75rem' }}
                     >
                         <i className="fas fa-angle-double-right"></i>
                     </button>
@@ -1061,104 +2001,125 @@
             );
         }
 
-        // Composant modal pour les détails d'un aliment
-        function FoodDetailModal({ food, isOpen, onClose }) {
-            if (!isOpen || !food) return null;
-
+        // Food Detail Modal Component
+        function FoodDetailModal({ food, onClose }) {
             return (
                 <div className="modal-overlay" onClick={onClose}>
                     <div className="modal-content" onClick={e => e.stopPropagation()}>
                         <div className="modal-header">
-                            <h2>{food.name}</h2>
+                            <h2 className="modal-title">{food.name}</h2>
                             <button className="modal-close" onClick={onClose}>
                                 <i className="fas fa-times"></i>
                             </button>
                         </div>
                         
-                        <div className="modal-body">
+                        <div style={{ padding: 'var(--spacing-lg)' }}>
                             {food.images && food.images.length > 0 && (
-                                <div className="modal-image">
-                                    <img src={`${API_BASE_URL}/${food.images[0].imagePath}`} alt={food.name} />
+                                <div style={{ textAlign: 'center', marginBottom: 'var(--spacing-lg)' }}>
+                                    <img 
+                                        src={`${API_BASE_URL}/images/${food.images[0].imagePath}`} 
+                                        alt={food.name}
+                                        style={{ 
+                                            maxWidth: '100%', 
+                                            maxHeight: '300px', 
+                                            borderRadius: 'var(--border-radius)',
+                                            boxShadow: 'var(--shadow-primary)'
+                                        }}
+                                        onError={(e) => e.target.style.display = 'none'}
+                                    />
                                 </div>
                             )}
                             
-                            <div className="modal-info">
+                            <div style={{ display: 'grid', gap: 'var(--spacing-lg)' }}>
                                 {food.description && (
-                                    <p className="food-description">{food.description}</p>
-                                )}
-                                
-                                {food.classLabel && (
-                                    <div className="info-item">
-                                        <strong>Classe:</strong> {food.classLabel}
+                                    <div>
+                                        <h3 style={{ marginBottom: 'var(--spacing-sm)' }}>Description</h3>
+                                        <p style={{ color: 'var(--text-secondary)', lineHeight: 1.6 }}>
+                                            {food.description}
+                                        </p>
                                     </div>
                                 )}
                                 
-                                {food.foodGroup && (
-                                    <div className="info-item">
-                                        <strong>Groupe:</strong> {food.foodGroup}
-                                    </div>
-                                )}
+                                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 'var(--spacing-md)' }}>
+                                    {food.classLabel && (
+                                        <div>
+                                            <strong>Category:</strong> {food.classLabel}
+                                        </div>
+                                    )}
+                                    
+                                    {food.region && (
+                                        <div>
+                                            <strong>Region:</strong> {food.region.replace(/_/g, ' ')}
+                                        </div>
+                                    )}
+                                    
+                                    {food.cookingMethod && (
+                                        <div>
+                                            <strong>Cooking Method:</strong> {food.cookingMethod}
+                                        </div>
+                                    )}
+                                    
+                                    {food.spiceLevel && (
+                                        <div>
+                                            <strong>Spice Level:</strong> {food.spiceLevel}
+                                        </div>
+                                    )}
+                                </div>
                                 
-                                <div className="nutrition-details">
-                                    <h3>Informations nutritionnelles (pour 100g)</h3>
-                                    <div className="nutrition-table">
-                                        {food.calories !== undefined && (
-                                            <div className="nutrition-row">
-                                                <span>Calories</span>
-                                                <span>{Math.round(food.calories)} kcal</span>
+                                <div>
+                                    <h3 style={{ marginBottom: 'var(--spacing-md)' }}>Nutritional Information (per 100g)</h3>
+                                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: 'var(--spacing-sm)' }}>
+                                        {[
+                                            { label: 'Calories', value: food.calories, unit: 'kcal' },
+                                            { label: 'Protein', value: food.protein, unit: 'g' },
+                                            { label: 'Carbohydrates', value: food.carbohydrates, unit: 'g' },
+                                            { label: 'Fat', value: food.fat, unit: 'g' },
+                                            { label: 'Fiber', value: food.fiber, unit: 'g' },
+                                            { label: 'Sodium', value: food.sodium, unit: 'mg' },
+                                            { label: 'Sugar', value: food.sugar, unit: 'g' }
+                                        ].filter(item => item.value !== undefined).map((item, index) => (
+                                            <div key={index} className="stat-card">
+                                                <div className="stat-value">
+                                                    {typeof item.value === 'number' ? item.value.toFixed(1) : item.value}
+                                                    <span style={{ fontSize: '0.8rem', fontWeight: 'normal' }}>{item.unit}</span>
+                                                </div>
+                                                <div className="stat-label">{item.label}</div>
                                             </div>
-                                        )}
-                                        {food.protein !== undefined && (
-                                            <div className="nutrition-row">
-                                                <span>Protéines</span>
-                                                <span>{food.protein?.toFixed(1)} g</span>
-                                            </div>
-                                        )}
-                                        {food.carbohydrates !== undefined && (
-                                            <div className="nutrition-row">
-                                                <span>Glucides</span>
-                                                <span>{food.carbohydrates?.toFixed(1)} g</span>
-                                            </div>
-                                        )}
-                                        {food.fat !== undefined && (
-                                            <div className="nutrition-row">
-                                                <span>Lipides</span>
-                                                <span>{food.fat?.toFixed(1)} g</span>
-                                            </div>
-                                        )}
-                                        {food.fiber !== undefined && (
-                                            <div className="nutrition-row">
-                                                <span>Fibres</span>
-                                                <span>{food.fiber?.toFixed(1)} g</span>
-                                            </div>
-                                        )}
-                                        {food.sodium !== undefined && (
-                                            <div className="nutrition-row">
-                                                <span>Sodium</span>
-                                                <span>{food.sodium?.toFixed(1)} mg</span>
-                                            </div>
-                                        )}
-                                        {food.sugar !== undefined && (
-                                            <div className="nutrition-row">
-                                                <span>Sucres</span>
-                                                <span>{food.sugar?.toFixed(1)} g</span>
-                                            </div>
-                                        )}
+                                        ))}
                                     </div>
                                 </div>
                                 
                                 {food.ingredients && food.ingredients.length > 0 && (
-                                    <div className="ingredients-section">
-                                        <h3>Ingrédients</h3>
-                                        <div className="ingredients-list">
+                                    <div>
+                                        <h3 style={{ marginBottom: 'var(--spacing-md)' }}>Ingredients</h3>
+                                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--spacing-xs)' }}>
                                             {food.ingredients.map((ingredient, index) => (
-                                                <span key={index} className="ingredient-tag">
+                                                <span 
+                                                    key={index}
+                                                    style={{
+                                                        background: 'var(--primary-gradient)',
+                                                        color: 'white',
+                                                        padding: '0.25rem 0.75rem',
+                                                        borderRadius: '20px',
+                                                        fontSize: '0.9rem',
+                                                        fontWeight: '500'
+                                                    }}
+                                                >
                                                     {ingredient}
                                                 </span>
                                             ))}
                                         </div>
                                     </div>
                                 )}
+
+                                {food.culturalSignificance && (
+                                    <div>
+                                        <h3 style={{ marginBottom: 'var(--spacing-sm)' }}>Cultural Significance</h3>
+                                        <p style={{ color: 'var(--text-secondary)', lineHeight: 1.6 }}>
+                                            {food.culturalSignificance}
+                                        </p>
+                                    </div>
+                                )}
                             </div>
                         </div>
                     </div>
@@ -1166,845 +2127,374 @@
             );
         }
 
-        // Composant section d'administration
-       // Composant section d'administration AMÉLIORÉ
-function AdminSection() {
-    const [indexStats, setIndexStats] = useState(null);
-    const [reindexing, setReindexing] = useState(false);
-    const [loadingStats, setLoadingStats] = useState(true);
-    const [statistics, setStatistics] = useState({
-        totalAliments: 0,
-        totalClasses: 0,
-        totalGroupes: 0
-    });
+        // Analytics Section Component
+        function AnalyticsSection() {
+            const [stats, setStats] = useState(null);
+            const [culturalStats, setCulturalStats] = useState(null);
+            const [loading, setLoading] = useState(true);
 
-    // Charger les statistiques au montage du composant
-    useEffect(() => {
-        loadStatistics();
-    }, []);
-
-    const loadStatistics = async () => {
-        setLoadingStats(true);
-        try {
-            // Charger les statistiques en parallèle
-            const [indexStatsResponse, classesResponse, groupsResponse] = await Promise.all([
-                fetch(`${API_BASE_URL}/foods/stats`),
-                fetch(`${API_BASE_URL}/foods/classes`),
-                fetch(`${API_BASE_URL}/foods/groups`)
-            ]);
-
-            const indexData = await indexStatsResponse.json();
-            const classesData = await classesResponse.json();
-            const groupsData = await groupsResponse.json();
-
-            setIndexStats(indexData);
-            setStatistics({
-                totalAliments: indexData.totalDocuments || 0,
-                totalClasses: classesData.length || 0,
-                totalGroupes: groupsData.length || 0
-            });
-
-            console.log("📊 Statistics loaded:", {
-                aliments: indexData.totalDocuments,
-                classes: classesData.length,
-                groupes: groupsData.length
-            });
-
-        } catch (error) {
-            console.error('❌ Erreur lors du chargement des statistiques:', error);
-            // Statistiques par défaut en cas d'erreur
-            setStatistics({
-                totalAliments: '-',
-                totalClasses: '-',
-                totalGroupes: '-'
-            });
-        } finally {
-            setLoadingStats(false);
-        }
-    };
-
-    const handleReindex = async () => {
-        setReindexing(true);
-        try {
-            const response = await fetch(`${API_BASE_URL}/foods/reindex`, {
-                method: 'POST'
-            });
-            const message = await response.text();
-            alert('✅ ' + message);
-            
-            // Recharger les statistiques après réindexation
-            setTimeout(() => {
-                loadStatistics();
-            }, 1000);
-            
-        } catch (error) {
-            console.error('❌ Erreur de réindexation:', error);
-            alert('❌ Erreur lors de la réindexation');
-        } finally {
-            setReindexing(false);
-        }
-    };
-
-    const handleConfigure = () => {
-        // Redirection vers Fuseki avec URL dynamique
-        const fusekiUrl = 'http://localhost:3030/#/dataset/african-middle-eastern-kg/query';
-        console.log("🔗 Redirecting to Fuseki:", fusekiUrl);
-        
-        // Ouvrir dans un nouvel onglet
-        window.open(fusekiUrl, '_blank', 'noopener,noreferrer');
-    };
-
-    const formatNumber = (num) => {
-        if (typeof num === 'number') {
-            return num.toLocaleString('fr-FR');
-        }
-        return num;
-    };
-
-    return (
-        <div className="admin-section">
-            <div className="admin-header">
-                <h2>Administration du système</h2>
-                <p>Gestion et maintenance du Food Knowledge Graph</p>
-            </div>
-
-            <div className="admin-cards">
-                {/* Carte Index Lucene */}
-                <div className="admin-card">
-                    <div className="admin-card-header">
-                        <i className="fas fa-database"></i>
-                        <h3>Index Lucene</h3>
-                    </div>
-                    <div className="admin-card-content">
-                        <p>Réindexer la base de données pour améliorer les performances de recherche.</p>
-                        
-                        {indexStats && (
-                            <div className="index-details">
-                                <small style={{ color: '#718096', display: 'block', margin: '0.5rem 0' }}>
-                                    Documents indexés: <strong>{formatNumber(indexStats.totalDocuments)}</strong>
-                                    {indexStats.deletedDocuments > 0 && (
-                                        <span> • Supprimés: {formatNumber(indexStats.deletedDocuments)}</span>
-                                    )}
-                                </small>
-                            </div>
-                        )}
-                        
-                        <button 
-                            className="admin-button primary"
-                            onClick={handleReindex}
-                            disabled={reindexing}
-                        >
-                            {reindexing ? (
-                                <>
-                                    <i className="fas fa-spinner fa-spin"></i>
-                                    Réindexation en cours...
-                                </>
-                            ) : (
-                                <>
-                                    <i className="fas fa-refresh"></i>
-                                    Réindexer
-                                </>
-                            )}
-                        </button>
-                    </div>
-                </div>
-
-                {/* Carte Statistiques AMÉLIORÉE */}
-                <div className="admin-card">
-                    <div className="admin-card-header">
-                        <i className="fas fa-chart-bar"></i>
-                        <h3>Statistiques</h3>
-                        {loadingStats && (
-                            <i className="fas fa-spinner fa-spin" style={{ marginLeft: 'auto' }}></i>
-                        )}
-                    </div>
-                    <div className="admin-card-content">
-                        <div className="stats-grid">
-                            <div className="stat-item">
-                                <div className={`stat-value ${loadingStats ? 'loading' : ''}`}>
-                                    {loadingStats ? (
-                                        <i className="fas fa-spinner fa-spin"></i>
-                                    ) : (
-                                        formatNumber(statistics.totalAliments)
-                                    )}
-                                </div>
-                                <div className="stat-label">Aliments indexés</div>
-                            </div>
-                            <div className="stat-item">
-                                <div className={`stat-value ${loadingStats ? 'loading' : ''}`}>
-                                    {loadingStats ? (
-                                        <i className="fas fa-spinner fa-spin"></i>
-                                    ) : (
-                                        formatNumber(statistics.totalClasses)
-                                    )}
-                                </div>
-                                <div className="stat-label">Classes d'aliments</div>
-                            </div>
-                            <div className="stat-item">
-                                <div className={`stat-value ${loadingStats ? 'loading' : ''}`}>
-                                    {loadingStats ? (
-                                        <i className="fas fa-spinner fa-spin"></i>
-                                    ) : (
-                                        formatNumber(statistics.totalGroupes)
-                                    )}
-                                </div>
-                                <div className="stat-label">Groupes alimentaires</div>
-                            </div>
-                        </div>
-                        
-                        {/* Bouton de rechargement des stats */}
-                        <button 
-                            className="admin-button secondary"
-                            onClick={loadStatistics}
-                            disabled={loadingStats}
-                            style={{ 
-                                marginTop: '1rem',
-                                fontSize: '0.9rem',
-                                padding: '0.5rem 1rem'
-                            }}
-                        >
-                            <i className={`fas fa-${loadingStats ? 'spinner fa-spin' : 'sync-alt'}`}></i>
-                            Actualiser
-                        </button>
-                    </div>
-                </div>
-
-                {/* Carte Configuration AMÉLIORÉE */}
-                <div className="admin-card">
-                    <div className="admin-card-header">
-                        <i className="fas fa-cog"></i>
-                        <h3>Configuration</h3>
-                    </div>
-                    <div className="admin-card-content">
-                        <p>Accéder à l'interface SPARQL Fuseki pour les requêtes avancées et la configuration du dataset.</p>
-                        
-                        <div className="config-info">
-                            <small style={{ 
-                                color: '#718096', 
-                                display: 'block', 
-                                margin: '0.5rem 0',
-                                fontSize: '0.8rem'
-                            }}>
-                                <i className="fas fa-info-circle"></i> 
-                                Dataset: <strong>african-middle-eastern-kg</strong>
-                                <br />
-                                <i className="fas fa-external-link-alt"></i> 
-                                URL: localhost:3030
-                            </small>
-                        </div>
-                        
-                        <button 
-                            className="admin-button secondary"
-                            onClick={handleConfigure}
-                        >
-                            <i className="fas fa-external-link-alt"></i>
-                            Ouvrir Fuseki
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            {/* Section d'information supplémentaire */}
-            <div className="admin-info-section">
-                <div className="info-card">
-                    <h4>🔍 Informations Système</h4>
-                    <ul style={{ 
-                        listStyle: 'none', 
-                        padding: 0, 
-                        fontSize: '0.9rem', 
-                        color: '#718096' 
-                    }}>
-                        <li>• Backend API: {API_BASE_URL}</li>
-                        <li>• SPARQL Endpoint: http://localhost:3030/african-middle-eastern-kg/sparql</li>
-                        <li>• Index Lucene: Actif</li>
-                        <li>• Images: Servies dynamiquement</li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    );
-}
-
-        // Styles CSS additionnels pour les modales et l'administration
-        const additionalStyles = `
-        /* Styles additionnels pour la section Admin améliorée */
-
-            .index-details {
-                background: rgba(102, 126, 234, 0.1);
-                padding: 0.75rem;
-                border-radius: 0.5rem;
-                border-left: 3px solid #667eea;
-                margin: 1rem 0;
-            }
-
-            .config-info {
-                background: #f7fafc;
-                padding: 0.75rem;
-                border-radius: 0.5rem;
-                border-left: 3px solid #68d391;
-                margin: 1rem 0;
-            }
-
-            .stat-value.loading {
-                color: #a0aec0;
-                animation: pulse 1.5s ease-in-out infinite;
-            }
-
-            @keyframes pulse {
-                0%, 100% { opacity: 0.6; }
-                50% { opacity: 1; }
-            }
-
-            .admin-info-section {
-                margin-top: 2rem;
-                background: #f7fafc;
-                border-radius: 1rem;
-                padding: 2rem;
-                border: 1px solid #e2e8f0;
-            }
-
-            .info-card h4 {
-                color: #2d3748;
-                margin-bottom: 1rem;
-                font-size: 1.1rem;
-                font-weight: 600;
-            }
-
-            .info-card ul li {
-                padding: 0.25rem 0;
-                font-family: 'Courier New', monospace;
-            }
-
-            .admin-button.secondary {
-                background: linear-gradient(135deg, #68d391, #48bb78);
-            }
-
-            .admin-button.secondary:hover {
-                box-shadow: 0 10px 30px rgba(104, 211, 145, 0.3);
-            }
-
-            /* Responsive pour mobile */
-            @media (max-width: 768px) {
-                .admin-cards {
-                    grid-template-columns: 1fr;
-                }
-                
-                .stats-grid {
-                    grid-template-columns: 1fr;
-                }
-                
-                .admin-info-section {
-                    padding: 1rem;
-                }
-            }
-            .modal-overlay {
-                position: fixed;
-                top: 0;
-                left: 0;
-                right: 0;
-                bottom: 0;
-                background: rgba(0, 0, 0, 0.8);
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                z-index: 2000;
-                backdrop-filter: blur(5px);
-            }
-
-            .modal-content {
-                background: white;
-                border-radius: 1.5rem;
-                max-width: 800px;
-                max-height: 90vh;
-                overflow-y: auto;
-                margin: 2rem;
-                box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
-            }
-
-            .modal-header {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                padding: 2rem 2rem 1rem;
-                border-bottom: 1px solid #e2e8f0;
-            }
-
-            .modal-close {
-                background: none;
-                border: none;
-                font-size: 1.5rem;
-                cursor: pointer;
-                color: #a0aec0;
-                padding: 0.5rem;
-                border-radius: 0.5rem;
-                transition: all 0.3s ease;
-            }
-
-            .modal-close:hover {
-                background: #f7fafc;
-                color: #4a5568;
-            }
-
-            .modal-body {
-                padding: 2rem;
-            }
-
-            .modal-image {
-                text-align: center;
-                margin-bottom: 2rem;
-            }
-
-            .modal-image img {
-                max-width: 100%;
-                max-height: 300px;
-                border-radius: 1rem;
-                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-            }
-
-            .food-description {
-                font-size: 1.1rem;
-                line-height: 1.6;
-                color: #4a5568;
-                margin-bottom: 2rem;
-            }
-
-            .info-item {
-                margin-bottom: 1rem;
-                color: #4a5568;
-            }
-
-            .nutrition-details {
-                margin-top: 2rem;
-            }
-
-            .nutrition-details h3 {
-                font-size: 1.3rem;
-                margin-bottom: 1rem;
-                color: #2d3748;
-                border-bottom: 2px solid #e2e8f0;
-                padding-bottom: 0.5rem;
-            }
-
-            .nutrition-table {
-                display: grid;
-                gap: 0.75rem;
-            }
-
-            .nutrition-row {
-                display: flex;
-                justify-content: space-between;
-                padding: 0.75rem 1rem;
-                background: #f7fafc;
-                border-radius: 0.75rem;
-                border-left: 4px solid #667eea;
-            }
-
-            .ingredients-section {
-                margin-top: 2rem;
-            }
-
-            .ingredients-section h3 {
-                font-size: 1.3rem;
-                margin-bottom: 1rem;
-                color: #2d3748;
-            }
-
-            .ingredients-list {
-                display: flex;
-                flex-wrap: wrap;
-                gap: 0.5rem;
-            }
-
-            .ingredient-tag {
-                background: linear-gradient(135deg, #667eea, #764ba2);
-                color: white;
-                padding: 0.5rem 1rem;
-                border-radius: 1rem;
-                font-size: 0.9rem;
-                font-weight: 500;
-            }
-
-            .admin-section {
-                background: white;
-                border-radius: 2rem;
-                padding: 3rem;
-                box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-            }
-
-            .admin-header {
-                text-align: center;
-                margin-bottom: 3rem;
-            }
-
-            .admin-header h2 {
-                font-size: 2.5rem;
-                font-weight: 800;
-                background: linear-gradient(135deg, #667eea, #764ba2);
-                -webkit-background-clip: text;
-                -webkit-text-fill-color: transparent;
-                margin-bottom: 0.5rem;
-            }
-
-            .admin-header p {
-                color: #718096;
-                font-size: 1.1rem;
-            }
-
-            .admin-cards {
-                display: grid;
-                grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-                gap: 2rem;
-            }
-
-            .admin-card {
-                background: #f7fafc;
-                border-radius: 1.5rem;
-                overflow: hidden;
-                border: 1px solid #e2e8f0;
-                transition: all 0.3s ease;
-            }
-
-            .admin-card:hover {
-                transform: translateY(-5px);
-                box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-            }
-
-            .admin-card-header {
-                background: linear-gradient(135deg, #667eea, #764ba2);
-                color: white;
-                padding: 1.5rem;
-                display: flex;
-                align-items: center;
-                gap: 1rem;
-            }
-
-            .admin-card-header i {
-                font-size: 1.5rem;
-            }
-
-            .admin-card-header h3 {
-                font-size: 1.2rem;
-                font-weight: 600;
-            }
-
-            .admin-card-content {
-                padding: 2rem;
-            }
-
-            .admin-button {
-                background: linear-gradient(135deg, #667eea, #764ba2);
-                color: white;
-                border: none;
-                padding: 0.75rem 1.5rem;
-                border-radius: 0.75rem;
-                font-weight: 600;
-                cursor: pointer;
-                transition: all 0.3s ease;
-                display: flex;
-                align-items: center;
-                gap: 0.5rem;
-                margin-top: 1rem;
-            }
-
-            .admin-button:hover {
-                transform: translateY(-2px);
-                box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
-            }
-
-            .admin-button:disabled {
-                opacity: 0.7;
-                cursor: not-allowed;
-                transform: none;
-            }
-
-            .admin-button.secondary {
-                background: linear-gradient(135deg, #a0aec0, #718096);
-            }
-
-            .stats-grid {
-                display: grid;
-                grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-                gap: 1rem;
-                margin-top: 1rem;
-            }
-
-            .stat-item {
-                text-align: center;
-                padding: 1rem;
-                background: white;
-                border-radius: 1rem;
-                border: 1px solid #e2e8f0;
-            }
-
-            .stat-value {
-                font-size: 2rem;
-                font-weight: 800;
-                color: #667eea;
-                margin-bottom: 0.5rem;
-            }
-
-            .stat-label {
-                font-size: 0.8rem;
-                color: #718096;
-                text-transform: uppercase;
-                letter-spacing: 0.5px;
-            }
-        `;
-
-        // Injecter les styles additionnels
-        const styleElement = document.createElement('style');
-        styleElement.textContent = additionalStyles;
-        document.head.appendChild(styleElement);
-
-        // Mise à jour du composant principal pour inclure la modale et l'administration
-        const AppWithModal = () => {
-            const [activeTab, setActiveTab] = useState('search');
-            const [searchQuery, setSearchQuery] = useState('');
-            const [filters, setFilters] = useState({
-                foodClass: '',
-                foodGroup: '',
-                minCalories: '',
-                maxCalories: '',
-                minProtein: '',
-                maxProtein: ''
-            });
-            const [results, setResults] = useState([]);
-            const [loading, setLoading] = useState(false);
-            const [pagination, setPagination] = useState({
-                currentPage: 0,
-                totalPages: 0,
-                totalElements: 0,
-                size: 20
-            });
-            const [sortBy, setSortBy] = useState('name');
-            const [sortDirection, setSortDirection] = useState('asc');
-            const [foodClasses, setFoodClasses] = useState([]);
-            const [foodGroups, setFoodGroups] = useState([]);
-            const [autocomplete, setAutocomplete] = useState([]);
-            const [showAutocomplete, setShowAutocomplete] = useState(false);
-            const [selectedFood, setSelectedFood] = useState(null);
-            const [showModal, setShowModal] = useState(false);
-
-            // Charger les classes et groupes d'aliments
             useEffect(() => {
-                Promise.all([
-                    fetch(`${API_BASE_URL}/foods/classes`).then(r => r.json()),
-                    fetch(`${API_BASE_URL}/foods/groups`).then(r => r.json())
-                ]).then(([classes, groups]) => {
-                    setFoodClasses(classes);
-                    setFoodGroups(groups);
-                }).catch(console.error);
+                loadAnalytics();
             }, []);
 
-            // Autocomplétion
-            const handleAutocomplete = useCallback(async (query) => {
-                if (query.length < 2) {
-                    setAutocomplete([]);
-                    setShowAutocomplete(false);
-                    return;
-                }
-
-                try {
-                    const response = await fetch(`${API_BASE_URL}/foods/autocomplete?query=${encodeURIComponent(query)}`);
-                    const suggestions = await response.json();
-                    setAutocomplete(suggestions);
-                    setShowAutocomplete(true);
-                } catch (error) {
-                    console.error('Erreur autocomplétion:', error);
-                }
-            }, []);
-
-            // Recherche
-            const handleSearch = async (page = 0) => {
+            const loadAnalytics = async () => {
                 setLoading(true);
                 try {
-                    const searchParams = new URLSearchParams({
-                        page: page.toString(),
-                        size: pagination.size.toString(),
-                        sortBy,
-                        sortDirection
-                    });
+                    const [indexStats, culturalData] = await Promise.all([
+                        fetch(`${API_BASE_URL}/foods/stats`).then(r => r.json()),
+                        fetch(`${API_BASE_URL}/foods/stats/cultural`).then(r => r.json())
+                    ]);
 
-                    if (searchQuery.trim()) searchParams.append('query', searchQuery);
-                    if (filters.foodClass) searchParams.append('foodClass', filters.foodClass);
-                    if (filters.foodGroup) searchParams.append('foodGroup', filters.foodGroup);
-                    if (filters.minCalories) searchParams.append('minCalories', filters.minCalories);
-                    if (filters.maxCalories) searchParams.append('maxCalories', filters.maxCalories);
-                    if (filters.minProtein) searchParams.append('minProtein', filters.minProtein);
-                    if (filters.maxProtein) searchParams.append('maxProtein', filters.maxProtein);
-
-                    const response = await fetch(`${API_BASE_URL}/foods/search?${searchParams}`);
-                    const data = await response.json();
-
-                    setResults(data.foods || []);
-                    setPagination({
-                        currentPage: data.currentPage || 0,
-                        totalPages: data.totalPages || 0,
-                        totalElements: data.totalElements || 0,
-                        size: data.size || 20
-                    });
+                    setStats(indexStats);
+                    setCulturalStats(culturalData);
                 } catch (error) {
-                    console.error('Erreur de recherche:', error);
-                    setResults([]);
+                    console.error('Failed to load analytics:', error);
                 } finally {
                     setLoading(false);
                 }
             };
 
-            const updateFilter = (key, value) => {
-                setFilters(prev => ({ ...prev, [key]: value }));
-            };
-
-            const resetFilters = () => {
-                setSearchQuery('');
-                setFilters({
-                    foodClass: '',
-                    foodGroup: '',
-                    minCalories: '',
-                    maxCalories: '',
-                    minProtein: '',
-                    maxProtein: ''
-                });
-            };
-
-            const handleFoodClick = async (food) => {
-                try {
-                    // Récupérer les détails complets de l'aliment
-                    const response = await fetch(`${API_BASE_URL}/foods/${encodeURIComponent(food.uri)}`);
-                    const detailedFood = await response.json();
-                    setSelectedFood(detailedFood);
-                    setShowModal(true);
-                } catch (error) {
-                    console.error('Erreur lors de la récupération des détails:', error);
-                    setSelectedFood(food);
-                    setShowModal(true);
-                }
-            };
-
-            return (
-                <div className="app-container">
-                    <Header activeTab={activeTab} setActiveTab={setActiveTab} />
-                    
-                    <main className="main-content">
-                        {activeTab === 'search' && (
-                            <>
-                                <SearchSection
-                                    searchQuery={searchQuery}
-                                    setSearchQuery={setSearchQuery}
-                                    filters={filters}
-                                    updateFilter={updateFilter}
-                                    resetFilters={resetFilters}
-                                    handleSearch={handleSearch}
-                                    loading={loading}
-                                    foodClasses={foodClasses}
-                                    foodGroups={foodGroups}
-                                    autocomplete={autocomplete}
-                                    showAutocomplete={showAutocomplete}
-                                    setShowAutocomplete={setShowAutocomplete}
-                                    handleAutocomplete={handleAutocomplete}
-                                />
-                                
-                                <ResultsSectionWithModal
-                                    results={results}
-                                    loading={loading}
-                                    pagination={pagination}
-                                    handleSearch={handleSearch}
-                                    sortBy={sortBy}
-                                    setSortBy={setSortBy}
-                                    sortDirection={sortDirection}
-                                    setSortDirection={setSortDirection}
-                                    onFoodClick={handleFoodClick}
-                                />
-                            </>
-                        )}
-                        
-                        {activeTab === 'admin' && <AdminSection />}
-                    </main>
-
-                    <FoodDetailModal
-                        food={selectedFood}
-                        isOpen={showModal}
-                        onClose={() => setShowModal(false)}
-                    />
-                </div>
-            );
-        };
-
-        // Composant des résultats avec support pour les clics
-        function ResultsSectionWithModal({ 
-            results, loading, pagination, handleSearch, 
-            sortBy, setSortBy, sortDirection, setSortDirection, onFoodClick 
-        }) {
             if (loading) {
                 return (
-                    <div className="results-section">
+                    <div className="glass-card">
                         <div className="loading">
-                            <i className="fas fa-spinner"></i>
-                            <p>Recherche en cours...</p>
-                        </div>
-                    </div>
-                );
-            }
-
-            if (!results.length && !loading) {
-                return (
-                    <div className="results-section">
-                        <div className="empty-state">
-                            <i className="fas fa-utensils"></i>
-                            <h3>Aucun aliment trouvé</h3>
-                            <p>Essayez de modifier vos critères de recherche</p>
+                            <div className="loading-spinner"></div>
+                            <h3>Loading Analytics...</h3>
+                            <p>Gathering insights from the knowledge graph</p>
                         </div>
                     </div>
                 );
             }
 
             return (
-                <div className="results-section">
-                    <div className="results-header">
-                        <div className="results-count">
-                            {pagination.totalElements} aliment{pagination.totalElements > 1 ? 's' : ''} trouvé{pagination.totalElements > 1 ? 's' : ''}
-                        </div>
-                        
-                        <div className="sort-controls">
-                            <select
-                                value={sortBy}
-                                onChange={(e) => setSortBy(e.target.value)}
-                                className="filter-select"
-                            >
-                                <option value="name">Nom</option>
-                                <option value="calories">Calories</option>
-                                <option value="protein">Protéines</option>
-                            </select>
-                            
-                            <button
-                                className="pagination-button"
-                                onClick={() => setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc')}
-                            >
-                                <i className={`fas fa-sort-${sortDirection === 'asc' ? 'up' : 'down'}`}></i>
-                            </button>
-                        </div>
+                <div className="glass-card fade-in">
+                    <div className="section-header">
+                        <h1 className="section-title">Platform Analytics</h1>
+                        <p className="section-subtitle">
+                            Comprehensive insights into food data, cultural diversity, and usage patterns
+                        </p>
                     </div>
 
-                    <div className="food-grid">
-                        {results.map((food, index) => (
-                            <div key={food.uri || index} onClick={() => onFoodClick(food)}>
-                                <FoodCard food={food} />
+                    <div className="admin-grid">
+                        <div className="admin-card">
+                            <div className="admin-card-header">
+                                <i className="fas fa-database admin-card-icon"></i>
+                                <h3>Database Overview</h3>
                             </div>
-                        ))}
-                    </div>
+                            <div className="admin-card-content">
+                                <div className="stats-grid">
+                                    <div className="stat-card">
+                                        <div className="stat-value">{stats?.totalDocuments?.toLocaleString() || '0'}</div>
+                                        <div className="stat-label">Food Items</div>
+                                    </div>
+                                    <div className="stat-card">
+                                        <div className="stat-value">{culturalStats?.totalRegions || '0'}</div>
+                                        <div className="stat-label">Regions</div>
+                                    </div>
+                                    <div className="stat-card">
+                                        <div className="stat-value">{stats?.indexValid ? 'Active' : 'Inactive'}</div>
+                                        <div className="stat-label">Index Status</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
 
-                    {pagination.totalPages > 1 && (
-                        <Pagination 
-                            pagination={pagination} 
-                            handleSearch={handleSearch} 
-                        />
-                    )}
+                        <div className="admin-card">
+                            <div className="admin-card-header">
+                                <i className="fas fa-globe-africa admin-card-icon"></i>
+                                <h3>Cultural Distribution</h3>
+                            </div>
+                            <div className="admin-card-content">
+                                {culturalStats?.regions && (
+                                    <div style={{ display: 'grid', gap: 'var(--spacing-sm)' }}>
+                                        {culturalStats.regions.slice(0, 5).map((region, index) => (
+                                            <div key={index} style={{ 
+                                                display: 'flex', 
+                                                justifyContent: 'space-between', 
+                                                alignItems: 'center',
+                                                padding: 'var(--spacing-sm)',
+                                                background: '#f8fafc',
+                                                borderRadius: 'var(--border-radius-sm)'
+                                            }}>
+                                                <span>{region.replace(/_/g, ' ')}</span>
+                                                <span style={{ fontWeight: '600', color: 'var(--text-primary)' }}>
+                                                    {culturalStats.foodsByRegion?.[region] || 0} items
+                                                </span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+
+                        <div className="admin-card">
+                            <div className="admin-card-header">
+                                <i className="fas fa-chart-pie admin-card-icon"></i>
+                                <h3>Performance Metrics</h3>
+                            </div>
+                            <div className="admin-card-content">
+                                <div style={{ display: 'grid', gap: 'var(--spacing-md)' }}>
+                                    <div style={{ 
+                                        display: 'flex', 
+                                        justifyContent: 'space-between', 
+                                        alignItems: 'center',
+                                        padding: 'var(--spacing-sm) 0',
+                                        borderBottom: '1px solid #e2e8f0'
+                                    }}>
+                                        <span>Search Performance</span>
+                                        <span style={{ color: '#48bb78', fontWeight: '600' }}>Optimal</span>
+                                    </div>
+                                    <div style={{ 
+                                        display: 'flex', 
+                                        justifyContent: 'space-between', 
+                                        alignItems: 'center',
+                                        padding: 'var(--spacing-sm) 0',
+                                        borderBottom: '1px solid #e2e8f0'
+                                    }}>
+                                        <span>Image Recognition</span>
+                                        <span style={{ color: '#4299e1', fontWeight: '600' }}>Active</span>
+                                    </div>
+                                    <div style={{ 
+                                        display: 'flex', 
+                                        justifyContent: 'space-between', 
+                                        alignItems: 'center',
+                                        padding: 'var(--spacing-sm) 0'
+                                    }}>
+                                        <span>Data Freshness</span>
+                                        <span style={{ color: '#48bb78', fontWeight: '600' }}>Current</span>
+                                    </div>
+                                </div>
+                                
+                                <button
+                                    className="btn btn-primary"
+                                    onClick={loadAnalytics}
+                                    style={{ marginTop: 'var(--spacing-md)', width: '100%' }}
+                                >
+                                    <i className="fas fa-sync-alt"></i>
+                                    Refresh Analytics
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             );
         }
 
-        // Rendu de l'application
-        ReactDOM.render(<AppWithModal />, document.getElementById('root'));
+        // System Section Component
+        function SystemSection() {
+            const [indexStats, setIndexStats] = useState(null);
+            const [reindexing, setReindexing] = useState(false);
+            const [loadingStats, setLoadingStats] = useState(true);
+
+            useEffect(() => {
+                loadSystemStats();
+            }, []);
+
+            const loadSystemStats = async () => {
+                setLoadingStats(true);
+                try {
+                    const response = await fetch(`${API_BASE_URL}/foods/stats`);
+                    const data = await response.json();
+                    setIndexStats(data);
+                } catch (error) {
+                    console.error('Failed to load system stats:', error);
+                } finally {
+                    setLoadingStats(false);
+                }
+            };
+
+            const handleReindex = async () => {
+                setReindexing(true);
+                try {
+                    const response = await fetch(`${API_BASE_URL}/foods/reindex`, {
+                        method: 'POST'
+                    });
+                    const message = await response.text();
+                    alert('✅ ' + message);
+                    
+                    setTimeout(() => {
+                        loadSystemStats();
+                    }, 1000);
+                    
+                } catch (error) {
+                    console.error('Reindex error:', error);
+                    alert('❌ Error during reindexing');
+                } finally {
+                    setReindexing(false);
+                }
+            };
+
+            const openFuseki = () => {
+                const fusekiUrl = 'http://localhost:3030/#/dataset/african-middle-eastern-kg/query';
+                window.open(fusekiUrl, '_blank', 'noopener,noreferrer');
+            };
+
+            return (
+                <div className="glass-card fade-in">
+                    <div className="section-header">
+                        <h1 className="section-title">System Management</h1>
+                        <p className="section-subtitle">
+                            Maintain and optimize the NutriGraph platform infrastructure
+                        </p>
+                    </div>
+
+                    <div className="admin-grid">
+                        <div className="admin-card">
+                            <div className="admin-card-header">
+                                <i className="fas fa-server admin-card-icon"></i>
+                                <h3>Search Index</h3>
+                            </div>
+                            <div className="admin-card-content">
+                                <p style={{ marginBottom: 'var(--spacing-md)', color: 'var(--text-secondary)' }}>
+                                    Optimize search performance by rebuilding the Lucene index with latest data.
+                                </p>
+                                
+                                {indexStats && (
+                                    <div style={{ 
+                                        background: '#f8fafc', 
+                                        padding: 'var(--spacing-md)', 
+                                        borderRadius: 'var(--border-radius-sm)',
+                                        marginBottom: 'var(--spacing-md)',
+                                        border: '1px solid #e2e8f0'
+                                    }}>
+                                        <div style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
+                                            <strong>Documents:</strong> {indexStats.totalDocuments?.toLocaleString() || '0'}
+                                            {indexStats.deletedDocuments > 0 && (
+                                                <span> • <strong>Deleted:</strong> {indexStats.deletedDocuments}</span>
+                                            )}
+                                        </div>
+                                    </div>
+                                )}
+                                
+                                <button 
+                                    className="btn btn-primary"
+                                    onClick={handleReindex}
+                                    disabled={reindexing}
+                                    style={{ width: '100%' }}
+                                >
+                                    {reindexing ? (
+                                        <>
+                                            <i className="fas fa-spinner fa-spin"></i>
+                                            Rebuilding Index...
+                                        </>
+                                    ) : (
+                                        <>
+                                            <i className="fas fa-refresh"></i>
+                                            Rebuild Index
+                                        </>
+                                    )}
+                                </button>
+                            </div>
+                        </div>
+
+                        <div className="admin-card">
+                            <div className="admin-card-header">
+                                <i className="fas fa-chart-bar admin-card-icon"></i>
+                                <h3>System Statistics</h3>
+                            </div>
+                            <div className="admin-card-content">
+                                <div className="stats-grid">
+                                    <div className="stat-card">
+                                        <div className="stat-value">
+                                            {loadingStats ? (
+                                                <i className="fas fa-spinner fa-spin"></i>
+                                            ) : (
+                                                indexStats?.totalDocuments?.toLocaleString() || '0'
+                                            )}
+                                        </div>
+                                        <div className="stat-label">Indexed Items</div>
+                                    </div>
+                                    <div className="stat-card">
+                                        <div className="stat-value">
+                                            {loadingStats ? (
+                                                <i className="fas fa-spinner fa-spin"></i>
+                                            ) : (
+                                                indexStats?.indexValid ? 'Healthy' : 'Error'
+                                            )}
+                                        </div>
+                                        <div className="stat-label">Index Status</div>
+                                    </div>
+                                </div>
+                                
+                                <button 
+                                    className="btn btn-secondary"
+                                    onClick={loadSystemStats}
+                                    disabled={loadingStats}
+                                    style={{ marginTop: 'var(--spacing-md)', width: '100%' }}
+                                >
+                                    <i className={`fas fa-${loadingStats ? 'spinner fa-spin' : 'sync-alt'}`}></i>
+                                    Refresh Stats
+                                </button>
+                            </div>
+                        </div>
+
+                        <div className="admin-card">
+                            <div className="admin-card-header">
+                                <i className="fas fa-database admin-card-icon"></i>
+                                <h3>Knowledge Graph</h3>
+                            </div>
+                            <div className="admin-card-content">
+                                <p style={{ marginBottom: 'var(--spacing-md)', color: 'var(--text-secondary)' }}>
+                                    Access the SPARQL endpoint for advanced queries and data management.
+                                </p>
+                                
+                                <div style={{ 
+                                    background: '#f8fafc', 
+                                    padding: 'var(--spacing-md)', 
+                                    borderRadius: 'var(--border-radius-sm)',
+                                    marginBottom: 'var(--spacing-md)',
+                                    fontSize: '0.85rem',
+                                    fontFamily: 'monospace',
+                                    border: '1px solid #e2e8f0'
+                                }}>
+                                    <div><strong>Dataset:</strong> african-middle-eastern-kg</div>
+                                    <div><strong>Endpoint:</strong> localhost:3030</div>
+                                </div>
+                                
+                                <button 
+                                    className="btn btn-success"
+                                    onClick={openFuseki}
+                                    style={{ width: '100%' }}
+                                >
+                                    <i className="fas fa-external-link-alt"></i>
+                                    Open SPARQL Interface
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style={{ 
+                        marginTop: 'var(--spacing-xl)', 
+                        background: 'rgba(255, 255, 255, 0.7)',
+                        padding: 'var(--spacing-lg)',
+                        borderRadius: 'var(--border-radius)',
+                        border: '1px solid rgba(255, 255, 255, 0.3)'
+                    }}>
+                        <h3 style={{ marginBottom: 'var(--spacing-md)', color: 'var(--text-primary)' }}>
+                            <i className="fas fa-info-circle" style={{ marginRight: 'var(--spacing-xs)' }}></i>
+                            System Information
+                        </h3>
+                        <div style={{ 
+                            display: 'grid', 
+                            gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', 
+                            gap: 'var(--spacing-sm)',
+                            fontSize: '0.9rem',
+                            color: 'var(--text-secondary)'
+                        }}>
+                            <div>🔗 <strong>API Endpoint:</strong> {API_BASE_URL}</div>
+                            <div>🔍 <strong>Search Engine:</strong> Apache Lucene</div>
+                            <div>🧠 <strong>Knowledge Graph:</strong> Apache Jena</div>
+                            <div>📊 <strong>SPARQL Endpoint:</strong> Fuseki Server</div>
+                            <div>🖼️ <strong>Image Recognition:</strong> Computer Vision</div>
+                            <div>🌍 <strong>Cultural Context:</strong> Multi-regional</div>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        // Render the application
+        ReactDOM.render(<NutriGraphApp />, document.getElementById('root'));
     </script>
 </body>
 </html>
