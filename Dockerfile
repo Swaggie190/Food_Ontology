@@ -1,6 +1,4 @@
-# Multi-stage build with Maven, Spring Boot, and Fuseki
-
-# Stage 1: Build the Spring Boot application
+# Multi-stage build for NutriGraph application
 FROM maven:3.9.6-eclipse-temurin-17 AS build
 
 WORKDIR /app
@@ -12,66 +10,37 @@ COPY nutrigraph/src ./src
 # Build the application
 RUN mvn clean package -DskipTests
 
-# Stage 2: Fuseki Server preparation
-FROM openjdk:11-jre-slim as fuseki
-
-# Install required packages
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends wget unzip && \
-    rm -rf /var/lib/apt/lists/*
-
-# Set up working directory for Fuseki
-WORKDIR /fuseki
-
-# Copy Fuseki files from the local directory
-COPY apache-jena-fuseki-5.4.0/fuseki-server.jar /fuseki/
-COPY apache-jena-fuseki-5.4.0/log4j2.properties /fuseki/
-
-# Copy configuration and ontology files
-COPY apache-jena-fuseki-5.4.0/run/config.ttl /fuseki/run/
-COPY apache-jena-fuseki-5.4.0/run/configuration/ /fuseki/run/configuration/
-
-# Create data directories
-RUN mkdir -p /fuseki/run/databases/Diseases
-RUN mkdir -p /fuseki/run/databases/african-middle-eastern-kg
-
-# Final runtime image
+# Runtime image
 FROM eclipse-temurin:17-jre-jammy
 
 WORKDIR /app
 
-# Copy the built Spring Boot artifact from the build stage
+# Install curl for health checks
+RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
+
+# Copy the built artifact from the build stage
 COPY --from=build /app/target/*.jar app.jar
 
 # Copy the Lucene index directory
 COPY nutrigraph/lucene-index-african /app/lucene-index-african
 
-# Copy Fuseki from the fuseki stage
-COPY --from=fuseki /fuseki /fuseki
-
-# Create a directory for images
-RUN mkdir -p /app/images
+# Create directories for images and ensure proper permissions
+RUN mkdir -p /app/images && chmod 755 /app/images
 
 # Set environment variables
 ENV SPRING_PROFILES_ACTIVE=docker
+ENV JAVA_OPTS="-Xmx2g -XX:+UseG1GC"
 
-# Create a startup script
-RUN echo '#!/bin/bash\n\
-# Start Fuseki server in the background\n\
-cd /fuseki && java -jar fuseki-server.jar --config=run/config.ttl &\n\
-\n\
-# Wait for Fuseki to start\n\
-echo "Waiting for Fuseki to start..."\n\
-sleep 10\n\
-\n\
-# Start the Spring Boot application\n\
-cd /app\n\
-echo "Starting Spring Boot application..."\n\
-java -jar app.jar\n\
-' > /start.sh && chmod +x /start.sh
+# Add a wait script for service dependencies
+COPY wait-for-it.sh /wait-for-it.sh
+RUN chmod +x /wait-for-it.sh
 
-# Expose ports for both Spring Boot and Fuseki
-EXPOSE 8080 3030
+# Expose the port the app runs on
+EXPOSE 8080
 
-# Set the entry point to use the startup script
-ENTRYPOINT ["/start.sh"]
+# Health check
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+  CMD curl -f http://localhost:8080/actuator/health || exit 1
+
+# Command to run the application with wait for Fuseki
+CMD ["/wait-for-it.sh", "fuseki:3030", "--timeout=60", "--", "java", "-jar", "/app/app.jar"]

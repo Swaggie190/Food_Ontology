@@ -1,4 +1,50 @@
+version: '3.8'
+
 services:
+  # Apache Jena Fuseki service with database initialization
+  fuseki:
+    image: stain/jena-fuseki:4.8.0
+    container_name: fuseki-server
+    ports:
+      - "${FUSEKI_PORT:-3030}:3030"
+    environment:
+      - ADMIN_PASSWORD=${FUSEKI_ADMIN_PASSWORD:-admin}
+      - JVM_ARGS=${FUSEKI_JVM_ARGS:--Xmx4g}
+      - FUSEKI_DATASET_1=${FUSEKI_DATASET_NAME:-african-middle-eastern-kg}
+    volumes:
+      # Mount the database directory for persistence
+      - "${FUSEKI_DB_PATH:-./apache-jena-fuseki-5.4.0/run/databases}:/fuseki/databases"
+      # Mount configuration if you have one
+      - "${FUSEKI_DB_PATH:-./apache-jena-fuseki-5.4.0/run}/configuration:/fuseki/configuration"
+      # Mount data files for initialization
+      - "${DATA_PATH:-./Serializer/african_middle_eastern_data}:/data"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3030/$/ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    networks:
+      - nutrigraph-network
+    restart: unless-stopped
+
+  # Database initialization service (runs once to load data)
+  fuseki-init:
+    image: stain/jena-fuseki:4.8.0
+    container_name: fuseki-init
+    depends_on:
+      fuseki:
+        condition: service_healthy
+    environment:
+      - FUSEKI_SERVER=http://fuseki:3030
+      - DATASET_NAME=${FUSEKI_DATASET_NAME:-african-middle-eastern-kg}
+    volumes:
+      - "${DATA_PATH:-./Serializer/african_middle_eastern_data}:/data"
+      - "./init-fuseki.sh:/init-fuseki.sh"
+    command: ["/bin/bash", "/init-fuseki.sh"]
+    networks:
+      - nutrigraph-network
+    restart: "no"
 
   # NutriGraph application
   nutrigraph:
@@ -7,17 +53,43 @@ services:
       dockerfile: Dockerfile
     container_name: nutrigraph-app
     ports:
-      - "8080:8080"
+      - "${NUTRIGRAPH_PORT:-8080}:8080"
+    depends_on:
+      fuseki:
+        condition: service_healthy
+      fuseki-init:
+        condition: service_completed_successfully
     environment:
-      - NUTRIGRAPH_FUSEKI_URL=http://host.docker.internal:3030
-      - NUTRIGRAPH_DATASET_NAME=african-middle-eastern-kg
-      - NUTRIGRAPH_LUCENE_INDEX_PATH=/app/lucene-index-african
-      - NUTRIGRAPH_IMAGES_BASE_PATH=/app/images
+      - NUTRIGRAPH_FUSEKI_URL=${NUTRIGRAPH_FUSEKI_URL:-http://fuseki:3030}
+      - NUTRIGRAPH_DATASET_NAME=${NUTRIGRAPH_DATASET_NAME:-african-middle-eastern-kg}
+      - NUTRIGRAPH_LUCENE_INDEX_PATH=${NUTRIGRAPH_LUCENE_INDEX_PATH:-/app/lucene-index-african}
+      - NUTRIGRAPH_IMAGES_BASE_PATH=${NUTRIGRAPH_IMAGES_BASE_PATH:-/app/images}
+      - SPRING_PROFILES_ACTIVE=docker
+      - JAVA_OPTS=${JAVA_OPTS:--Xmx2g}
     volumes:
-      - ./Serializer/african_middle_eastern_data/images:/app/images
+      # Mount images directory (read-only)
+      - "${IMAGES_PATH:-./Serializer/african_middle_eastern_data/images}:/app/images:ro"
+      # Mount Lucene index for persistence
+      - "${LUCENE_INDEX_PATH:-./nutrigraph/lucene-index-african}:/app/lucene-index-african"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
     networks:
       - nutrigraph-network
+    restart: unless-stopped
 
 networks:
   nutrigraph-network:
     driver: bridge
+    name: nutrigraph-network
+
+volumes:
+  fuseki-data:
+    driver: local
+    name: nutrigraph-fuseki-data
+  lucene-index:
+    driver: local
+    name: nutrigraph-lucene-index
