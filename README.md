@@ -66,7 +66,7 @@ NutriGraph is a comprehensive food intelligence platform that combines semantic 
 
 3. **Access the applications**
    - NutriGraph Web Interface: http://localhost:8080
-   - Fuseki Admin Interface: http://localhost:3030 (username: admin, password: admin)
+   - Fuseki Admin Interface: http://localhost:3030 
 
 4. **Stop the environment**
    ```bash
