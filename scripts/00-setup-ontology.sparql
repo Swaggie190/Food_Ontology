@@ -1,0 +1,73 @@
+﻿# SPARQL Update to set up basic ontology structure
+PREFIX : <http://example.org/food-ontology#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX owl: <http://www.w3.org/2002/07/owl#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+INSERT DATA {
+    # Main food class
+    :Food a owl:Class ;
+          rdfs:label "Food" ;
+          rdfs:comment "Base class for all food items" .
+    
+    # Food categories
+    :Grain a owl:Class ;
+           rdfs:subClassOf :Food ;
+           rdfs:label "Grain" .
+    
+    :Bread a owl:Class ;
+           rdfs:subClassOf :Food ;
+           rdfs:label "Bread" .
+    
+    :Dip a owl:Class ;
+         rdfs:subClassOf :Food ;
+         rdfs:label "Dip" .
+    
+    :Vegetable a owl:Class ;
+              rdfs:subClassOf :Food ;
+              rdfs:label "Vegetable" .
+    
+    :Fruit a owl:Class ;
+           rdfs:subClassOf :Food ;
+           rdfs:label "Fruit" .
+    
+    :Spice a owl:Class ;
+           rdfs:subClassOf :Food ;
+           rdfs:label "Spice" .
+    
+    # Properties
+    :name a owl:DatatypeProperty ;
+          rdfs:domain :Food ;
+          rdfs:range rdfs:Literal ;
+          rdfs:label "name" .
+    
+    :calories a owl:DatatypeProperty ;
+             rdfs:domain :Food ;
+             rdfs:range xsd:double ;
+             rdfs:label "calories per 100g" .
+    
+    :protein a owl:DatatypeProperty ;
+            rdfs:domain :Food ;
+            rdfs:range xsd:double ;
+            rdfs:label "protein content in grams" .
+    
+    :carbohydrates a owl:DatatypeProperty ;
+                  rdfs:domain :Food ;
+                  rdfs:range xsd:double ;
+                  rdfs:label "carbohydrate content in grams" .
+    
+    :region a owl:DatatypeProperty ;
+           rdfs:domain :Food ;
+           rdfs:range rdfs:Literal ;
+           rdfs:label "geographical region of origin" .
+    
+    :spiceLevel a owl:DatatypeProperty ;
+               rdfs:domain :Food ;
+               rdfs:range rdfs:Literal ;
+               rdfs:label "spice level (mild, medium, hot)" .
+    
+    :culturalSignificance a owl:DatatypeProperty ;
+                         rdfs:domain :Food ;
+                         rdfs:range rdfs:Literal ;
+                         rdfs:label "cultural and traditional significance" .
+}

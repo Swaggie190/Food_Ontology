@@ -1,0 +1,55 @@
+﻿# Sample SPARQL Update to insert initial data
+PREFIX : <http://example.org/food-ontology#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+INSERT DATA {
+    :Rice a :Grain ;
+          :name "Rice" ;
+          :calories 130 ;
+          :protein 2.7 ;
+          :carbohydrates 28 ;
+          :region "International" ;
+          rdfs:label "Rice - Basic grain staple" .
+    
+    :Injera a :Bread ;
+           :name "Injera" ;
+           :calories 165 ;
+           :protein 4.2 ;
+           :carbohydrates 33 ;
+           :region "East_Africa" ;
+           :culturalSignificance "Traditional Ethiopian bread made from teff flour" ;
+           rdfs:label "Injera - Ethiopian flatbread" .
+    
+    :Hummus a :Dip ;
+           :name "Hummus" ;
+           :calories 166 ;
+           :protein 8 ;
+           :carbohydrates 14 ;
+           :region "Middle_East" ;
+           :spiceLevel "mild" ;
+           rdfs:label "Hummus - Middle Eastern chickpea dip" .
+    
+    :Berbere a :Spice ;
+            :name "Berbere" ;
+            :region "East_Africa" ;
+            :spiceLevel "hot" ;
+            :culturalSignificance "Traditional Ethiopian spice blend used in many dishes" ;
+            rdfs:label "Berbere - Ethiopian spice blend" .
+    
+    :Pita a :Bread ;
+         :name "Pita" ;
+         :calories 275 ;
+         :protein 9 ;
+         :carbohydrates 55 ;
+         :region "Middle_East" ;
+         rdfs:label "Pita - Middle Eastern flatbread" .
+    
+    :Falafel a :Dip ;
+            :name "Falafel" ;
+            :calories 333 ;
+            :protein 13 ;
+            :carbohydrates 32 ;
+            :region "Middle_East" ;
+            :spiceLevel "medium" ;
+            rdfs:label "Falafel - Middle Eastern chickpea fritters" .
+}

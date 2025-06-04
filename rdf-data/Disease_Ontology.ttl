@@ -1,0 +1,434 @@
+@prefix : <http://example.org/medical-ontology#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Déclaration de l'ontologie
+<http://example.org/medical-ontology> rdf:type owl:Ontology ;
+    rdfs:label "Enhanced Medical Ontology"@en ;
+    rdfs:comment "Ontologie étendue pour la gestion des données médicales spécialisées"@fr ;
+    owl:versionInfo "2.0" .
+
+# ========================================
+# CLASSES PRINCIPALES ÉTENDUES
+# ========================================
+
+:Person rdf:type owl:Class ;
+    rdfs:label "Person"@en .
+
+:Datasource rdf:type owl:Class ;
+    rdfs:label "Datasource"@en .
+
+:Symptom rdf:type owl:Class ;
+    rdfs:label "Symptom"@en .
+
+:Disease rdf:type owl:Class ;
+    rdfs:label "Disease"@en .
+
+:TreatmentProtocol rdf:type owl:Class ;
+    rdfs:label "Treatment Protocol"@en .
+
+:Prevention rdf:type owl:Class ;
+    rdfs:label "Prevention"@en .
+
+:LifeHabit rdf:type owl:Class ;
+    rdfs:label "Life Habit"@en .
+
+# ========================================
+# NOUVELLES CLASSES SPÉCIALISÉES
+# ========================================
+
+# Types de maladies gynécologiques
+:GynecologicalDisease rdf:type owl:Class ;
+    rdfs:subClassOf :Disease ;
+    rdfs:label "Gynecological Disease"@en .
+
+:OvarianDisease rdf:type owl:Class ;
+    rdfs:subClassOf :GynecologicalDisease ;
+    rdfs:label "Ovarian Disease"@en .
+
+:UterineDisease rdf:type owl:Class ;
+    rdfs:subClassOf :GynecologicalDisease ;
+    rdfs:label "Uterine Disease"@en .
+
+:BreastDisease rdf:type owl:Class ;
+    rdfs:subClassOf :GynecologicalDisease ;
+    rdfs:label "Breast Disease"@en .
+
+# Sous-classes spécifiques d'ovaires
+:OvarianCyst rdf:type owl:Class ;
+    rdfs:subClassOf :OvarianDisease ;
+    rdfs:label "Ovarian Cyst"@en .
+
+:FunctionalCyst rdf:type owl:Class ;
+    rdfs:subClassOf :OvarianCyst ;
+    rdfs:label "Functional Cyst"@en .
+
+:FollicularCyst rdf:type owl:Class ;
+    rdfs:subClassOf :FunctionalCyst ;
+    rdfs:label "Follicular Cyst"@en .
+
+:CorpusLuteumCyst rdf:type owl:Class ;
+    rdfs:subClassOf :FunctionalCyst ;
+    rdfs:label "Corpus Luteum Cyst"@en .
+
+:DermoidCyst rdf:type owl:Class ;
+    rdfs:subClassOf :OvarianCyst ;
+    rdfs:label "Dermoid Cyst"@en .
+
+:Cystadenoma rdf:type owl:Class ;
+    rdfs:subClassOf :OvarianCyst ;
+    rdfs:label "Cystadenoma"@en .
+
+:Endometrioma rdf:type owl:Class ;
+    rdfs:subClassOf :OvarianCyst ;
+    rdfs:label "Endometrioma"@en .
+
+:OvarianTorsion rdf:type owl:Class ;
+    rdfs:subClassOf :OvarianDisease ;
+    rdfs:label "Ovarian Torsion"@en .
+
+:OvarianLeiomyoma rdf:type owl:Class ;
+    rdfs:subClassOf :OvarianDisease ;
+    rdfs:label "Ovarian Leiomyoma"@en .
+
+# Cancer classes
+:Cancer rdf:type owl:Class ;
+    rdfs:subClassOf :Disease ;
+    rdfs:label "Cancer"@en .
+
+:BreastCancer rdf:type owl:Class ;
+    rdfs:subClassOf :Cancer, :BreastDisease ;
+    rdfs:label "Breast Cancer"@en .
+
+:CervicalCancer rdf:type owl:Class ;
+    rdfs:subClassOf :Cancer, :GynecologicalDisease ;
+    rdfs:label "Cervical Cancer"@en .
+
+:OvarianCancer rdf:type owl:Class ;
+    rdfs:subClassOf :Cancer, :OvarianDisease ;
+    rdfs:label "Ovarian Cancer"@en .
+
+# Fibromes
+:Fibroid rdf:type owl:Class ;
+    rdfs:subClassOf :UterineDisease ;
+    rdfs:label "Fibroid"@en .
+
+:UterineFibroid rdf:type owl:Class ;
+    rdfs:subClassOf :Fibroid ;
+    rdfs:label "Uterine Fibroid"@en .
+
+:Myomes rdf:type owl:Class ;
+    rdfs:subClassOf :UterineFibroid ;
+    rdfs:label "Myomes"@en .
+
+# Types de kystes supplémentaires
+:Kyste rdf:type owl:Class ;
+    rdfs:subClassOf :Disease ;
+    rdfs:label "Kyste"@en .
+
+:ChocolateCyst rdf:type owl:Class ;
+    rdfs:subClassOf :Endometrioma ;
+    rdfs:label "Chocolate Cyst"@en .
+
+# ========================================
+# CLASSES DE SUPPORT MÉDICAL
+# ========================================
+
+:MedicalProcedure rdf:type owl:Class ;
+    rdfs:label "Medical Procedure"@en .
+
+:SurgicalProcedure rdf:type owl:Class ;
+    rdfs:subClassOf :MedicalProcedure ;
+    rdfs:label "Surgical Procedure"@en .
+
+:Laparoscopy rdf:type owl:Class ;
+    rdfs:subClassOf :SurgicalProcedure ;
+    rdfs:label "Laparoscopy"@en .
+
+:Cystectomy rdf:type owl:Class ;
+    rdfs:subClassOf :SurgicalProcedure ;
+    rdfs:label "Cystectomy"@en .
+
+:Oophorectomy rdf:type owl:Class ;
+    rdfs:subClassOf :SurgicalProcedure ;
+    rdfs:label "Oophorectomy"@en .
+
+:Tumorectomy rdf:type owl:Class ;
+    rdfs:subClassOf :SurgicalProcedure ;
+    rdfs:label "Tumorectomy"@en .
+
+:DiagnosticMethod rdf:type owl:Class ;
+    rdfs:label "Diagnostic Method"@en .
+
+:Ultrasound rdf:type owl:Class ;
+    rdfs:subClassOf :DiagnosticMethod ;
+    rdfs:label "Ultrasound"@en .
+
+:MRI rdf:type owl:Class ;
+    rdfs:subClassOf :DiagnosticMethod ;
+    rdfs:label "MRI"@en .
+
+:CTScan rdf:type owl:Class ;
+    rdfs:subClassOf :DiagnosticMethod ;
+    rdfs:label "CT Scan"@en .
+
+:BloodTest rdf:type owl:Class ;
+    rdfs:subClassOf :DiagnosticMethod ;
+    rdfs:label "Blood Test"@en .
+
+:RiskFactor rdf:type owl:Class ;
+    rdfs:label "Risk Factor"@en .
+
+:Complication rdf:type owl:Class ;
+    rdfs:label "Complication"@en .
+
+:Prognosis rdf:type owl:Class ;
+    rdfs:label "Prognosis"@en .
+
+:EthnicGroup rdf:type owl:Class ;
+    rdfs:label "Ethnic Group"@en .
+
+# ========================================
+# PROPRIÉTÉS D'OBJET ÉTENDUES
+# ========================================
+
+:hasDisease rdf:type owl:ObjectProperty ;
+    rdfs:domain :Person ;
+    rdfs:range :Disease ;
+    rdfs:label "has disease"@en .
+
+:hasSymptom rdf:type owl:ObjectProperty ;
+    rdfs:domain :Person ;
+    rdfs:range :Symptom ;
+    rdfs:label "has symptom"@en .
+
+:hasTreatmentProtocol rdf:type owl:ObjectProperty ;
+    rdfs:domain :Disease ;
+    rdfs:range :TreatmentProtocol ;
+    rdfs:label "has treatment protocol"@en .
+
+:hasPrevention rdf:type owl:ObjectProperty ;
+    rdfs:domain :Disease ;
+    rdfs:range :Prevention ;
+    rdfs:label "has prevention"@en .
+
+:hasRiskFactor rdf:type owl:ObjectProperty ;
+    rdfs:domain :Disease ;
+    rdfs:range :RiskFactor ;
+    rdfs:label "has risk factor"@en .
+
+:hasComplication rdf:type owl:ObjectProperty ;
+    rdfs:domain :Disease ;
+    rdfs:range :Complication ;
+    rdfs:label "has complication"@en .
+
+:diagnosedBy rdf:type owl:ObjectProperty ;
+    rdfs:domain :Disease ;
+    rdfs:range :DiagnosticMethod ;
+    rdfs:label "diagnosed by"@en .
+
+:treatedBy rdf:type owl:ObjectProperty ;
+    rdfs:domain :Disease ;
+    rdfs:range :MedicalProcedure ;
+    rdfs:label "treated by"@en .
+
+:affectsOrgan rdf:type owl:ObjectProperty ;
+    rdfs:domain :Disease ;
+    rdfs:range rdfs:Literal ;
+    rdfs:label "affects organ"@en .
+
+:hasPrognosis rdf:type owl:ObjectProperty ;
+    rdfs:domain :Disease ;
+    rdfs:range :Prognosis ;
+    rdfs:label "has prognosis"@en .
+
+:predisposedTo rdf:type owl:ObjectProperty ;
+    rdfs:domain :EthnicGroup ;
+    rdfs:range :Disease ;
+    rdfs:label "predisposed to"@en .
+
+# Relations spécifiques pour Datasource (inchangées)
+:mentions rdf:type owl:ObjectProperty ;
+    rdfs:label "mentions"@en .
+
+:datasourceMentionsPerson rdf:type owl:ObjectProperty ;
+    rdfs:subPropertyOf :mentions ;
+    rdfs:domain :Datasource ;
+    rdfs:range :Person .
+
+:datasourceMentionsSymptom rdf:type owl:ObjectProperty ;
+    rdfs:subPropertyOf :mentions ;
+    rdfs:domain :Datasource ;
+    rdfs:range :Symptom .
+
+:datasourceMentionsDisease rdf:type owl:ObjectProperty ;
+    rdfs:subPropertyOf :mentions ;
+    rdfs:domain :Datasource ;
+    rdfs:range :Disease .
+
+:datasourceMentionsTreatment rdf:type owl:ObjectProperty ;
+    rdfs:subPropertyOf :mentions ;
+    rdfs:domain :Datasource ;
+    rdfs:range :TreatmentProtocol .
+
+:datasourceMentionsPrevention rdf:type owl:ObjectProperty ;
+    rdfs:subPropertyOf :mentions ;
+    rdfs:domain :Datasource ;
+    rdfs:range :Prevention .
+
+# ========================================
+# PROPRIÉTÉS DE DONNÉES ÉTENDUES
+# ========================================
+
+# Propriétés générales
+:name rdf:type owl:DatatypeProperty ;
+    rdfs:label "name"@en ;
+    rdfs:range xsd:string .
+
+:description rdf:type owl:DatatypeProperty ;
+    rdfs:label "description"@en ;
+    rdfs:range xsd:string .
+
+:ageAtOnset rdf:type owl:DatatypeProperty ;
+    rdfs:label "age at onset"@en ;
+    rdfs:domain :Disease ;
+    rdfs:range xsd:integer .
+
+:prevalence rdf:type owl:DatatypeProperty ;
+    rdfs:label "prevalence"@en ;
+    rdfs:domain :Disease ;
+    rdfs:range xsd:decimal .
+
+:incidenceRate rdf:type owl:DatatypeProperty ;
+    rdfs:label "incidence rate"@en ;
+    rdfs:domain :Disease ;
+    rdfs:range xsd:decimal .
+
+:mortalityRate rdf:type owl:DatatypeProperty ;
+    rdfs:label "mortality rate"@en ;
+    rdfs:domain :Disease ;
+    rdfs:range xsd:decimal .
+
+# Propriétés spécifiques aux kystes
+:cystSize rdf:type owl:DatatypeProperty ;
+    rdfs:label "cyst size"@en ;
+    rdfs:domain :OvarianCyst ;
+    rdfs:range xsd:decimal .
+
+:cystType rdf:type owl:DatatypeProperty ;
+    rdfs:label "cyst type"@en ;
+    rdfs:domain :OvarianCyst ;
+    rdfs:range xsd:string .
+
+:isUnilateral rdf:type owl:DatatypeProperty ;
+    rdfs:label "is unilateral"@en ;
+    rdfs:domain :OvarianDisease ;
+    rdfs:range xsd:boolean .
+
+:spontaneousResolution rdf:type owl:DatatypeProperty ;
+    rdfs:label "spontaneous resolution"@en ;
+    rdfs:domain :FunctionalCyst ;
+    rdfs:range xsd:boolean .
+
+# Propriétés cancer
+:cancerStage rdf:type owl:DatatypeProperty ;
+    rdfs:label "cancer stage"@en ;
+    rdfs:domain :Cancer ;
+    rdfs:range xsd:string .
+
+:tumorSize rdf:type owl:DatatypeProperty ;
+    rdfs:label "tumor size"@en ;
+    rdfs:domain :Cancer ;
+    rdfs:range xsd:decimal .
+
+:metastatic rdf:type owl:DatatypeProperty ;
+    rdfs:label "metastatic"@en ;
+    rdfs:domain :Cancer ;
+    rdfs:range xsd:boolean .
+
+:hormoneReceptorStatus rdf:type owl:DatatypeProperty ;
+    rdfs:label "hormone receptor status"@en ;
+    rdfs:domain :BreastCancer ;
+    rdfs:range xsd:string .
+
+# Propriétés fibromes
+:fibroidNumber rdf:type owl:DatatypeProperty ;
+    rdfs:label "fibroid number"@en ;
+    rdfs:domain :UterineFibroid ;
+    rdfs:range xsd:integer .
+
+:fibroidLocation rdf:type owl:DatatypeProperty ;
+    rdfs:label "fibroid location"@en ;
+    rdfs:domain :UterineFibroid ;
+    rdfs:range xsd:string .
+
+:symptomSeverity rdf:type owl:DatatypeProperty ;
+    rdfs:label "symptom severity"@en ;
+    rdfs:domain :Disease ;
+    rdfs:range xsd:string .
+
+# Propriétés ethniques
+:ethnicPredisposition rdf:type owl:DatatypeProperty ;
+    rdfs:label "ethnic predisposition"@en ;
+    rdfs:domain :Disease ;
+    rdfs:range xsd:string .
+
+:riskMultiplier rdf:type owl:DatatypeProperty ;
+    rdfs:label "risk multiplier"@en ;
+    rdfs:domain :RiskFactor ;
+    rdfs:range xsd:decimal .
+
+# Propriétés de procédure
+:procedureDuration rdf:type owl:DatatypeProperty ;
+    rdfs:label "procedure duration"@en ;
+    rdfs:domain :MedicalProcedure ;
+    rdfs:range xsd:duration .
+
+:recoveryTime rdf:type owl:DatatypeProperty ;
+    rdfs:label "recovery time"@en ;
+    rdfs:domain :SurgicalProcedure ;
+    rdfs:range xsd:duration .
+
+:isMinimallyInvasive rdf:type owl:DatatypeProperty ;
+    rdfs:label "is minimally invasive"@en ;
+    rdfs:domain :SurgicalProcedure ;
+    rdfs:range xsd:boolean .
+
+:successRate rdf:type owl:DatatypeProperty ;
+    rdfs:label "success rate"@en ;
+    rdfs:domain :TreatmentProtocol ;
+    rdfs:range xsd:decimal .
+
+# ========================================
+# CONTRAINTES DE CARDINALITÉ ÉTENDUES
+# ========================================
+
+# Person hasDisease 0..* Disease (modifié pour permettre plusieurs maladies)
+:Person rdfs:subClassOf [
+    rdf:type owl:Restriction ;
+    owl:onProperty :hasDisease ;
+    owl:minCardinality "0"^^xsd:nonNegativeInteger
+] .
+
+# Disease hasTreatmentProtocol 1..* TreatmentProtocol
+:Disease rdfs:subClassOf [
+    rdf:type owl:Restriction ;
+    owl:onProperty :hasTreatmentProtocol ;
+    owl:minCardinality "1"^^xsd:nonNegativeInteger
+] .
+
+# OvarianCyst treatedBy 1..1 SurgicalProcedure (pour les kystes complexes)
+:OvarianCyst rdfs:subClassOf [
+    rdf:type owl:Restriction ;
+    owl:onProperty :treatedBy ;
+    owl:maxCardinality "1"^^xsd:nonNegativeInteger
+] .
+
+# Cancer hasComplication 0..* Complication
+:Cancer rdfs:subClassOf [
+    rdf:type owl:Restriction ;
+    owl:onProperty :hasComplication ;
+    owl:minCardinality "0"^^xsd:nonNegativeInteger
+] .

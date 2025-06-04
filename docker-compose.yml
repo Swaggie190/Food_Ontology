@@ -1,4 +1,3 @@
-# Remove version line as it's obsolete in newer Docker Compose
 services:
   # Apache Jena Fuseki service
   fuseki:
@@ -18,8 +17,10 @@ services:
     volumes:
       # Persist Fuseki data and configuration
       - fuseki_data:/fuseki
-      # Mount your existing knowledge graph data if available (optional)
-      # - ./apache-jena-fuseki-5.4.0/run/databases:/fuseki/databases:ro
+      # Mount your existing TDB database directly
+      - ./apache-jena-fuseki-5.4.0/run/databases:/fuseki/databases
+      # Mount RDF files for loading (if you have them)
+      - ./rdf-data:/rdf-data:ro
     restart: unless-stopped
     networks:
       - nutrigraph-network
@@ -29,7 +30,121 @@ services:
       timeout: 10s
       retries: 5
       start_period: 60s
-    # REMOVED THE PROBLEMATIC COMMAND - Let Fuseki use its default startup
+
+  # Database initialization service
+  fuseki-loader:
+    image: stain/jena-fuseki:latest
+    container_name: fuseki-data-loader
+    depends_on:
+      fuseki:
+        condition: service_healthy
+    volumes:
+      # Mount your RDF data files
+      - ./rdf-data:/rdf-data:ro
+      # Mount any scripts
+      - ./scripts:/scripts:ro
+    networks:
+      - nutrigraph-network
+    environment:
+      - FUSEKI_URL=http://fuseki:3030
+      - ADMIN_PASSWORD=admin123
+    entrypoint: ["sh", "-c"]
+    command: >
+      "
+        echo 'Starting database initialization...'
+        
+        # Function to wait for Fuseki to be fully ready
+        wait_for_fuseki() {
+          echo 'Waiting for Fuseki to be fully operational...'
+          for i in $(seq 1 30); do
+            if curl -f -s http://fuseki:3030/$/ping > /dev/null 2>&1; then
+              echo 'Fuseki is ready!'
+              return 0
+            fi
+            echo \"Attempt $i/30: Fuseki not ready yet, waiting 5 seconds...\"
+            sleep 5
+          done
+          echo 'Timeout waiting for Fuseki to be ready'
+          return 1
+        }
+        
+        wait_for_fuseki || exit 1
+        
+        # Check if dataset exists, create if not
+        echo 'Checking/Creating dataset african-middle-eastern-kg...'
+        if ! curl -f -s -u admin:admin123 http://fuseki:3030/$/datasets/african-middle-eastern-kg > /dev/null 2>&1; then
+          echo 'Dataset does not exist, creating...'
+          curl -X POST -u admin:admin123 http://fuseki:3030/$/datasets \
+               -H 'Content-Type: application/x-www-form-urlencoded' \
+               -d 'dbType=tdb2&dbName=african-middle-eastern-kg'
+          
+          if [ $? -eq 0 ]; then
+            echo 'Dataset created successfully'
+          else
+            echo 'Failed to create dataset'
+            exit 1
+          fi
+        else
+          echo 'Dataset already exists'
+        fi
+        
+        # Wait a moment for dataset to be ready
+        sleep 3
+        
+        # Load RDF files if they exist
+        if [ -d '/rdf-data' ] && [ \"$(find /rdf-data -name '*.ttl' -o -name '*.rdf' -o -name '*.nt' -o -name '*.owl' | head -1)\" ]; then
+          echo 'Loading RDF data files...'
+          find /rdf-data -name '*.ttl' -o -name '*.rdf' -o -name '*.nt' -o -name '*.owl' | while read file; do
+            if [ -f \"$file\" ]; then
+              echo \"Loading $file...\"
+              # Determine content type based on file extension
+              case \"$file\" in
+                *.ttl) CONTENT_TYPE='text/turtle' ;;
+                *.rdf) CONTENT_TYPE='application/rdf+xml' ;;
+                *.nt) CONTENT_TYPE='application/n-triples' ;;
+                *.owl) CONTENT_TYPE='application/rdf+xml' ;;
+                *) CONTENT_TYPE='text/turtle' ;;
+              esac
+              
+              curl -X POST http://fuseki:3030/african-middle-eastern-kg/data \
+                   -H \"Content-Type: $CONTENT_TYPE\" \
+                   --data-binary @\"$file\"
+              
+              if [ $? -eq 0 ]; then
+                echo \"Successfully loaded $file\"
+              else
+                echo \"Warning: Failed to load $file\"
+              fi
+            fi
+          done
+        else
+          echo 'No RDF data files found in /rdf-data'
+        fi
+        
+        # Load from SPARQL scripts if they exist
+        if [ -d '/scripts' ] && [ \"$(find /scripts -name '*.sparql' | head -1)\" ]; then
+          echo 'Executing SPARQL scripts...'
+          find /scripts -name '*.sparql' | while read script; do
+            if [ -f \"$script\" ]; then
+              echo \"Executing $script...\"
+              curl -X POST http://fuseki:3030/african-middle-eastern-kg/update \
+                   -H 'Content-Type: application/sparql-update' \
+                   --data-binary @\"$script\"
+              
+              if [ $? -eq 0 ]; then
+                echo \"Successfully executed $script\"
+              else
+                echo \"Warning: Failed to execute $script\"
+              fi
+            fi
+          done
+        else
+          echo 'No SPARQL scripts found in /scripts'
+        fi
+        
+        echo 'Database initialization completed successfully!'
+      "
+    restart: "no"
 
   # NutriGraph application
   nutrigraph:
@@ -42,6 +157,9 @@ services:
     depends_on:
       fuseki:
         condition: service_healthy
+      # Remove the dependency on fuseki-loader completion to allow parallel access
+      # fuseki-loader:
+      #   condition: service_completed_successfully
     environment:
       - SPRING_PROFILES_ACTIVE=docker
       - NUTRIGRAPH_FUSEKI_URL=http://fuseki:3030
