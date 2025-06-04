@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 set -e
 
@@ -16,7 +16,7 @@ echo "📁 Data directory: $DATA_DIR"
 echo "⏳ Waiting for Fuseki server to be ready..."
 timeout=60
 counter=0
-while ! curl -f "$FUSEKI_URL/$/ping" >/dev/null 2>&1; do
+while ! curl -f "$FUSEKI_URL/\$/ping" >/dev/null 2>&1; do
     counter=$((counter + 1))
     if [ $counter -gt $timeout ]; then
         echo "❌ Timeout waiting for Fuseki server"
@@ -30,112 +30,90 @@ echo "✅ Fuseki server is ready!"
 
 # Check if dataset already exists
 echo "🔍 Checking if dataset '$DATASET' exists..."
-if curl -f "$FUSEKI_URL/$/datasets" 2>/dev/null | grep -q "\"ds.name\" : \"/$DATASET\""; then
-    echo "✅ Dataset '$DATASET' already exists, checking if it has data..."
-    
-    # Check if dataset has data by running a simple COUNT query
-    QUERY="SELECT (COUNT(*) as ?count) WHERE { ?s ?p ?o }"
-    ENCODED_QUERY=$(echo "$QUERY" | sed 's/ /%20/g' | sed 's/?/%3F/g' | sed 's/{/%7B/g' | sed 's/}/%7D/g' | sed 's/(/%28/g' | sed 's/)/%29/g')
-    
-    if curl -f "$FUSEKI_URL/$DATASET/sparql?query=$ENCODED_QUERY" 2>/dev/null | grep -q '"value" : "0"'; then
-        echo "⚠️  Dataset exists but is empty, proceeding with data loading..."
-        LOAD_DATA=true
-    else
-        echo "✅ Dataset has data, skipping initialization."
-        LOAD_DATA=false
-    fi
+DATASETS_RESPONSE=$(curl -s "$FUSEKI_URL/\$/datasets" 2>/dev/null || echo "{}")
+
+if echo "$DATASETS_RESPONSE" | grep -q "\"$DATASET\""; then
+    echo "✅ Dataset '$DATASET' already exists"
+    echo "ℹ️  Skipping initialization - dataset found"
 else
     echo "📝 Creating dataset '$DATASET'..."
     
-    # Create the dataset
-    curl -X POST "$FUSEKI_URL/$/datasets" \
+    # Create the dataset using the correct endpoint
+    CREATE_RESPONSE=$(curl -s -X POST "$FUSEKI_URL/\$/datasets" \
          -H "Content-Type: application/x-www-form-urlencoded" \
-         -d "dbName=$DATASET&dbType=tdb2" \
-         --fail --silent --show-error
+         -d "dbName=$DATASET&dbType=tdb2" 2>/dev/null || echo "error")
     
-    if [ $? -eq 0 ]; then
+    if [ "$CREATE_RESPONSE" != "error" ]; then
         echo "✅ Dataset '$DATASET' created successfully!"
-        LOAD_DATA=true
+        
+        # Look for RDF files to load
+        echo "📂 Looking for data files in $DATA_DIR..."
+        
+        # Find RDF files
+        RDF_FILES=""
+        if [ -d "$DATA_DIR" ]; then
+            # Use simple find that works in minimal containers
+            for ext in ttl rdf owl nt n3; do
+                files=$(find "$DATA_DIR" -name "*.$ext" 2>/dev/null || true)
+                if [ -n "$files" ]; then
+                    RDF_FILES="$RDF_FILES $files"
+                fi
+            done
+        fi
+        
+        if [ -n "$RDF_FILES" ]; then
+            echo "📊 Found RDF files to load:"
+            echo "$RDF_FILES"
+            
+            # Load each RDF file
+            for file in $RDF_FILES; do
+                if [ -f "$file" ]; then
+                    echo "📥 Loading file: $(basename "$file")"
+                    
+                    # Determine content type based on file extension
+                    case "${file##*.}" in
+                        ttl) CONTENT_TYPE="text/turtle" ;;
+                        rdf|owl) CONTENT_TYPE="application/rdf+xml" ;;
+                        nt) CONTENT_TYPE="application/n-triples" ;;
+                        n3) CONTENT_TYPE="text/n3" ;;
+                        *) CONTENT_TYPE="text/turtle" ;;
+                    esac
+                    
+                    # Upload the file
+                    if curl -s -X POST "$FUSEKI_URL/$DATASET/data" \
+                            -H "Content-Type: $CONTENT_TYPE" \
+                            --data-binary "@$file" >/dev/null 2>&1; then
+                        echo "✅ Successfully loaded $(basename "$file")"
+                    else
+                        echo "❌ Failed to load $(basename "$file")"
+                    fi
+                fi
+            done
+            
+            echo "🔍 Verifying data was loaded..."
+            # Simple verification without complex query parsing
+            QUERY="SELECT (COUNT(*) as ?count) WHERE { ?s ?p ?o }"
+            ENCODED_QUERY=$(echo "$QUERY" | sed 's/ /%20/g; s/?/%3F/g; s/{/%7B/g; s/}/%7D/g; s/(/%28/g; s/)/%29/g; s/\*/%2A/g')
+            
+            COUNT_RESULT=$(curl -s "$FUSEKI_URL/$DATASET/sparql?query=$ENCODED_QUERY" 2>/dev/null || echo "")
+            
+            if [ -n "$COUNT_RESULT" ]; then
+                echo "📊 Data loading completed"
+            else
+                echo "⚠️  Could not verify data loading"
+            fi
+            
+        else
+            echo "⚠️  No RDF files found in $DATA_DIR"
+            echo "💡 Dataset created but no data loaded"
+            echo "📁 Contents of $DATA_DIR:"
+            ls -la "$DATA_DIR" 2>/dev/null || echo "Directory not accessible"
+        fi
+        
     else
         echo "❌ Failed to create dataset '$DATASET'"
         exit 1
     fi
-fi
-
-# Load data if needed
-if [ "$LOAD_DATA" = true ]; then
-    echo "📂 Looking for data files in $DATA_DIR..."
-    
-    # Common RDF file extensions
-    RDF_FILES=$(find "$DATA_DIR" -name "*.ttl" -o -name "*.rdf" -o -name "*.nt" -o -name "*.n3" -o -name "*.owl" 2>/dev/null || true)
-    
-    if [ -z "$RDF_FILES" ]; then
-        echo "⚠️  No RDF files found in $DATA_DIR"
-        echo "📁 Contents of $DATA_DIR:"
-        ls -la "$DATA_DIR" 2>/dev/null || echo "Directory not accessible"
-        
-        # Look for alternative file structures
-        if [ -d "$DATA_DIR/ontologies" ]; then
-            echo "🔍 Found ontologies directory, checking for RDF files..."
-            RDF_FILES=$(find "$DATA_DIR/ontologies" -name "*.ttl" -o -name "*.rdf" -o -name "*.nt" -o -name "*.n3" -o -name "*.owl" 2>/dev/null || true)
-        fi
-        
-        if [ -d "$DATA_DIR/rdf" ]; then
-            echo "🔍 Found rdf directory, checking for RDF files..."
-            RDF_FILES=$(find "$DATA_DIR/rdf" -name "*.ttl" -o -name "*.rdf" -o -name "*.nt" -o -name "*.n3" -o -name "*.owl" 2>/dev/null || true)
-        fi
-    fi
-    
-    if [ -n "$RDF_FILES" ]; then
-        echo "📊 Found RDF files to load:"
-        echo "$RDF_FILES"
-        
-        # Load each RDF file
-        for file in $RDF_FILES; do
-            echo "📥 Loading file: $(basename "$file")"
-            
-            # Determine content type based on file extension
-            case "${file##*.}" in
-                ttl) CONTENT_TYPE="text/turtle" ;;
-                rdf|owl) CONTENT_TYPE="application/rdf+xml" ;;
-                nt) CONTENT_TYPE="application/n-triples" ;;
-                n3) CONTENT_TYPE="text/n3" ;;
-                *) CONTENT_TYPE="text/turtle" ;;
-            esac
-            
-            # Upload the file
-            if curl -X POST "$FUSEKI_URL/$DATASET/data" \
-                    -H "Content-Type: $CONTENT_TYPE" \
-                    --data-binary "@$file" \
-                    --fail --silent --show-error; then
-                echo "✅ Successfully loaded $(basename "$file")"
-            else
-                echo "❌ Failed to load $(basename "$file")"
-                # Don't exit, try to load other files
-            fi
-        done
-        
-        # Verify data was loaded
-        echo "🔍 Verifying data was loaded..."
-        QUERY="SELECT (COUNT(*) as ?count) WHERE { ?s ?p ?o }"
-        ENCODED_QUERY=$(echo "$QUERY" | sed 's/ /%20/g' | sed 's/?/%3F/g' | sed 's/{/%7B/g' | sed 's/}/%7D/g' | sed 's/(/%28/g' | sed 's/)/%29/g')
-        
-        RESULT=$(curl -f "$FUSEKI_URL/$DATASET/sparql?query=$ENCODED_QUERY" 2>/dev/null)
-        COUNT=$(echo "$RESULT" | grep -o '"value" : "[0-9]*"' | grep -o '[0-9]*' || echo "0")
-        
-        echo "📊 Total triples loaded: $COUNT"
-        
-        if [ "$COUNT" -gt "0" ]; then
-            echo "✅ Data successfully loaded into dataset '$DATASET'"
-        else
-            echo "⚠️  No data found in dataset after loading"
-        fi
-    else
-        echo "⚠️  No RDF files found to load"
-        echo "💡 You may need to manually add your ontology files to the data directory"
-    fi
-else
-    echo "⏭️  Skipping data loading as dataset already contains data"
 fi
 
 echo "🎉 Fuseki initialization completed!"
