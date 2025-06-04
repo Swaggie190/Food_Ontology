@@ -1,5 +1,4 @@
-version: '3.8'
-
+# Remove version line as it's obsolete in newer Docker Compose
 services:
   # Apache Jena Fuseki service
   fuseki:
@@ -19,24 +18,18 @@ services:
     volumes:
       # Persist Fuseki data and configuration
       - fuseki_data:/fuseki
-      # Mount your existing knowledge graph data if available
-      - ./apache-jena-fuseki-5.4.0/run/databases:/fuseki/databases
-      # Optional: Mount any custom configuration
-      - ./fuseki-config:/fuseki/config
+      # Mount your existing knowledge graph data if available (optional)
+      # - ./apache-jena-fuseki-5.4.0/run/databases:/fuseki/databases:ro
     restart: unless-stopped
     networks:
       - nutrigraph-network
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:3030/$/ping || exit 1"]
+      test: ["CMD", "curl", "-f", "http://localhost:3030/$/ping"]
       interval: 30s
       timeout: 10s
       retries: 5
       start_period: 60s
-    command: [
-      "--config=/fuseki/config/config.ttl",
-      "--port=3030",
-      "--localhost"
-    ]
+    # REMOVED THE PROBLEMATIC COMMAND - Let Fuseki use its default startup
 
   # NutriGraph application
   nutrigraph:
@@ -55,8 +48,6 @@ services:
       - NUTRIGRAPH_DATASET_NAME=african-middle-eastern-kg
       - NUTRIGRAPH_LUCENE_INDEX_PATH=/app/lucene-index-african
       - NUTRIGRAPH_IMAGES_BASE_PATH=/app/images
-      # Database connection settings
-      - SPRING_DATASOURCE_URL=sparql:http://fuseki:3030/african-middle-eastern-kg
       # Logging levels
       - LOGGING_LEVEL_COM_NUTRIGRAPH=DEBUG
       - LOGGING_LEVEL_ORG_APACHE_JENA=WARN
@@ -69,33 +60,11 @@ services:
       - nutrigraph-network
     restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:8080/api/foods/stats || exit 1"]
+      test: ["CMD-SHELL", "curl -f http://localhost:8080/actuator/health || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 90s
-
-  # Optional: Database initialization service
-  fuseki-init:
-    image: stain/jena-fuseki:latest
-    container_name: fuseki-initializer
-    depends_on:
-      fuseki:
-        condition: service_healthy
-    volumes:
-      - ./apache-jena-fuseki-5.4.0/run/databases:/import-data:ro
-      - fuseki_data:/fuseki
-    networks:
-      - nutrigraph-network
-    profiles:
-      - init
-    command: [
-      "sh", "-c", 
-      "echo 'Initializing Fuseki with data...' && 
-       curl -X POST http://fuseki:3030/$/datasets -H 'Content-Type: application/x-www-form-urlencoded' -d 'dbType=tdb2&dbName=african-middle-eastern-kg' &&
-       echo 'Dataset created successfully' ||
-       echo 'Dataset creation failed or already exists'"
-    ]
 
 networks:
   nutrigraph-network:
